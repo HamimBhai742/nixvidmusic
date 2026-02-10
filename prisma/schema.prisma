@@ -1,0 +1,69 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRoleEnum {
+  USER
+  ADMIN
+  SUPERADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model User {
+  id                            String             @id @default(auto()) @map("_id") @db.ObjectId
+  name                          String
+  email                         String             @unique
+  password                      String?
+  role                          UserRoleEnum       @default(USER)
+  status                        UserStatus         @default(ACTIVE)
+  image                         String?
+  otp                           String?
+  otpExpiry                     DateTime?
+  notification                  Boolean            @default(true)
+  fcmToken                      String?
+  birthday                      String?
+  age                           Int?
+  number                        String?
+  parentName                    String?
+  relation                      String?
+  parentNumber                  String?
+  parentEmail                   String?
+  parentOTP                     String?
+  parentOTPExpiry               DateTime?
+  isParentEmailVerified         Boolean            @default(true)
+  address                       Json?
+  skill                         String?
+  forgetPasswordToken           String?
+  forgetPasswordTokenExpires    DateTime?
+  goal                          String?
+  focus                         String?
+  isEmailVerified               Boolean            @default(true)
+  emailVerificationToken        String?
+  emailVerificationTokenExpires DateTime?
+  language                      String?
+  gender                        Gender             @default(MALE)
+  twoFactor                     Boolean?           @default(false)
+  twoFactorOTP                  String?
+  twoFactorOTPExpires           DateTime?
+  createdAt                     DateTime           @default(now())
+  updatedAt                     DateTime           @updatedAt
+
+  @@map("users")
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}

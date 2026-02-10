@@ -4,7 +4,7 @@ import express, { Application, NextFunction, Request, Response } from "express";
 import path from "path";
 import httpStatus from 'http-status'
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
-// import router from "./app/routes";
+import router from "./app/routes";
 
 const app: Application = express();
 app.use(
@@ -23,10 +23,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(process.cwd(), "public")));
 
 app.get("/", (req: Request, res: Response) => {
-  res.send('Bus ticket server is running.........');
+  res.send('Dxvid Music server is running.........');
 });
 
-// app.use("/api/v1", router);
+app.use("/api/v1", router);
 
 app.use(globalErrorHandler);
 

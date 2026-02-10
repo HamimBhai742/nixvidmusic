@@ -43,7 +43,7 @@ const register=async(payload:UserPayload)=>{
 
  return{
     id:user.id,
-     message:'OTP sent successfully'
+     message:'Verification OTP sent to your email. Please verify to activate account.'
  }
     })
  

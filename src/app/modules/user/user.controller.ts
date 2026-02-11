@@ -16,4 +16,25 @@ const resendOTP=async(req:Request,res:Response)=>{
     sendResponse(res,{success:true,statusCode:httpStatus.OK,message:result.message,data:null})
 }
 
-export const userController={register,resendOTP}
+const requestPasswordReset=async(req:Request,res:Response)=>{
+    const result=await userServices.requestPasswordReset(req.body.email)
+
+    sendResponse(res,{success:true,statusCode:httpStatus.OK,message:result.message,data:result.tempToken})
+}
+
+const verifyOtp=async(req:Request,res:Response)=>{
+     const { email, otp, token } = req.body;
+    const result=await userServices.verifyOtp(email, otp, token)
+
+    sendResponse(res,{success:true,statusCode:httpStatus.OK,message:result.message,data:result.tempToken})
+}
+
+const resetPassword=async(req:Request,res:Response)=>{
+      const { email, token, newPassword } = req.body;
+
+    const result=await userServices.resetPassword(email, token, newPassword)
+
+    sendResponse(res,{success:true,statusCode:httpStatus.OK,message:result.message,data:null})
+}
+
+export const userController={register,resendOTP,requestPasswordReset,verifyOtp,resetPassword}

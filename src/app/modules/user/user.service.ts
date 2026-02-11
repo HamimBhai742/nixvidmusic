@@ -4,11 +4,13 @@ import { UserPayload } from "../../interface/user.interface";
 import { generateOTP } from "../../utils/generateOTP";
 import { prisma } from "../../utils/prisma";
 import { otpQueueEmail } from "../../bullMQ/queues/mailQueues";
-import sendEmail from "../../utils/emailTemplates/nodemailerTransport";
 import { registrationOtpTemplate } from "../../utils/emailTemplates/registrationOtpTemplate";
 import { AppError } from "../../error/AppError";
 import httpStatus from 'http-status'
-import { email } from "zod";
+import { Secret } from "jsonwebtoken";
+import { generateForgetToken, generateToken } from "../../utils/generateToken";
+import { forgetPasswordOtpTemplate } from "../../utils/emailTemplates/forgetPasswordOtpTemplate";
+import { passwordChangedTemplate } from "../../utils/emailTemplates/passwordChangedTemplate";
 
 const register=async(payload:UserPayload)=>{
    const existingUser = await prisma.user.findFirst({
@@ -39,7 +41,6 @@ const userData={
  
 }
 
-
 const resendOTP=async(email:string)=>{
 const user=await prisma.user.findFirst({
   where:{email}
@@ -69,8 +70,122 @@ if(!user){
   };
 }
 
+const requestPasswordReset = async (email: string) => {
+  if (!email) throw new AppError(httpStatus.BAD_REQUEST, 'Email is required');
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) throw new AppError(httpStatus.NOT_FOUND, 'No user found with this email');
+
+  const otp = generateOTP(); 
+  const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+  const tempToken =await generateForgetToken(
+    { id: user.id, name: user.name, email: user.email, role: user.role },
+    config.jwt.access_secret as Secret,
+    '5m'
+  );
+
+  await prisma.user.update({
+    where: { email },
+    data: { otp, otpExpiry, forgetPasswordToken: tempToken, forgetPasswordTokenExpires: otpExpiry },
+  });
+
+  await forgetPasswordOtpTemplate(user.name,'Your Reset Password OTP',user.email,otp)
+
+  return { message: 'OTP sent to email', tempToken };
+};
+
+const verifyOtp = async (email: string, otp: string, token: string) => {
+  if (!email || !otp || !token)
+    throw new AppError(httpStatus.BAD_REQUEST, 'All fields are required');
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) throw new AppError(httpStatus.NOT_FOUND, 'No user found with this email');
+
+  if (user.otp !== otp) throw new AppError(httpStatus.BAD_REQUEST, 'Invalid OTP');
+  if (!user.forgetPasswordToken || user.forgetPasswordToken !== token)
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid or expired token');
+  if (user.forgetPasswordTokenExpires && user.forgetPasswordTokenExpires < new Date())
+    throw new AppError(httpStatus.BAD_REQUEST, 'Token expired');
+
+  // ✅ Generate new temporary token for password reset
+  const newTempToken =await generateForgetToken(
+    { id: user.id, name: user.name, email: user.email, role: user.role },
+    config.jwt.access_secret as Secret,
+    '5m'
+  );
+
+  // ✅ Update user with new token and expiry
+  const newExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+  await prisma.user.update({
+    where: { email },
+    data: {
+      forgetPasswordToken: newTempToken,
+      forgetPasswordTokenExpires: newExpiry,
+    },
+  });
+
+  return {
+    message: 'OTP verified successfully',
+    tempToken: newTempToken,
+  };
+};
+
+
+const resetPassword = async (email: string, token: string, newPassword: string) => {
+  if (!email || !token || !newPassword)
+    throw new AppError(httpStatus.BAD_REQUEST, 'All fields are required');
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) throw new AppError(httpStatus.NOT_FOUND, 'No user found with this email');
+
+
+  if (!user.forgetPasswordToken || user.forgetPasswordToken !== token)
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid or expired token');
+  if (user.forgetPasswordTokenExpires && user.forgetPasswordTokenExpires < new Date())
+    throw new AppError(httpStatus.BAD_REQUEST, 'Token expired');
+
+  // ✅ Ensure password is not empty before hashing
+  if (!newPassword.trim()) throw new AppError(httpStatus.BAD_REQUEST, 'Password cannot be empty');
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      password: hashedPassword,
+      otp: null,
+      otpExpiry: null,
+      forgetPasswordToken: null,
+      forgetPasswordTokenExpires: null,
+    },
+  });
+
+  await passwordChangedTemplate(user.name,'Password Changed Successfully',user.email,`${config.client_url}/secure-account`)
+  // await otpQueueEmail.add(
+  //   "passwordChangedConfirmation",
+  //   {
+  //     userName: user.name,
+  //     email: user.email,
+  //     subject: "Password Changed Successfully",
+  //     secureLink: `${config.client_url}/secure-account`,
+  //   },
+  //   {
+  //     jobId: `${user.id}-${Date.now()}`,
+  //     removeOnComplete: true,
+  //     attempts: 3,
+  //     backoff: { type: "fixed", delay: 5000 },
+  //   }
+  // );
+
+  return { message: 'Password reset successfully' };
+};
+
 
 export const userServices={
     register,
-    resendOTP
+    resendOTP,
+    verifyOtp,
+    resetPassword,
+    requestPasswordReset
 }

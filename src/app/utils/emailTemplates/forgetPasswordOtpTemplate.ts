@@ -2,7 +2,7 @@
 
 import sendEmail from "./nodemailerTransport";
 
-const forgetPasswordOtpTemplate = async (userName: string, subject: string, email: string, otp: string,) => {
+export const forgetPasswordOtpTemplate = async (userName: string, subject: string, email: string, otp: string,) => {
     const html = `<!DOCTYPE html>
 <html lang="en">
 
@@ -314,7 +314,7 @@ const forgetPasswordOtpTemplate = async (userName: string, subject: string, emai
                     <div class="email-header">
                         <div class="company-logo">
                             <div class="logo-icon">
-                                <img src="http://api.hirerise.org/logo.png" alt="logo" />
+                                <img src="https://i.postimg.cc/d3GFX2Nn/logo.png" alt="logo" />
                             </div>
                         </div>
                     </div>
@@ -325,7 +325,7 @@ const forgetPasswordOtpTemplate = async (userName: string, subject: string, emai
 
                         <p class="main-text">
                             We received a request to reset the password for your account on <span
-                                class="brand-highlight">Hire Rise</span>. Use this OTP to complete the password reset
+                                class="brand-highlight">Accord Technology</span>. Use this OTP to complete the password reset
                             process.
                         </p>
 
@@ -354,7 +354,7 @@ const forgetPasswordOtpTemplate = async (userName: string, subject: string, emai
 
                         <div class="email-signature">
                             <p class="signature-text">Regards,</p>
-                            <p class="team-name">Team <span class="brand-highlight">Hire Rise</span>.</p>
+                            <p class="team-name">Team <span class="brand-highlight">Accord Technology</span>.</p>
                         </div>
                     </div>
                 </div>

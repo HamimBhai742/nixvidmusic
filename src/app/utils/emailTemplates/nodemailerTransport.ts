@@ -15,8 +15,8 @@ const sendEmail = async (
     // port: 587,
     // secure: true,
     auth: {
-      user: config.emailSender.email,
-      pass: config.emailSender.pass,
+      user: config.smtp.user,
+      pass: config.smtp.pass,
     },
     tls: {
       rejectUnauthorized: false,  // Optional: Bypass SSL issues if needed
@@ -25,7 +25,7 @@ const sendEmail = async (
 
   // Email options
   const mailOptions = {
-    from: config.emailSender.email,
+    from: config.smtp.user,
     // from: "support@deepbluedeal.com",
     to,
     subject,

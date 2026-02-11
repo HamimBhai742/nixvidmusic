@@ -10,4 +10,10 @@ const result=await userServices.register(req.body)
 sendResponse(res,{success:true,statusCode:httpStatus.OK,message:result.message,data:null})
 })
 
-export const userController={register}
+const resendOTP=async(req:Request,res:Response)=>{
+    const result=await userServices.resendOTP(req.body.email)
+
+    sendResponse(res,{success:true,statusCode:httpStatus.OK,message:result.message,data:null})
+}
+
+export const userController={register,resendOTP}

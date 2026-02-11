@@ -1,14 +1,17 @@
-// import sendEmail from "./sendMailBrevo";
-
 import sendEmail from "./nodemailerTransport";
 
-export const registrationOtpTemplate = async (userName: string, subject: string, email: string, otp: string,) => {
-    const html = `<!DOCTYPE html>
+export const loginOtpTemplate = async (
+  userName: string,
+  subject: string,
+  email: string,
+  otp: string
+) => {
+  const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Verify Your Email</title>
+  <title>Login Verification Code</title>
   <style>
     body {
       margin: 0;
@@ -63,7 +66,7 @@ export const registrationOtpTemplate = async (userName: string, subject: string,
     .verification-section {
       text-align: center;
       padding: 24px 0;
-      background-color: #f8f9fa;
+      background-color: #f1f4ff;
       border-radius: 8px;
       margin: 24px 0;
     }
@@ -112,6 +115,7 @@ export const registrationOtpTemplate = async (userName: string, subject: string,
     <tr>
       <td style="padding: 20px 0;">
         <div class="email-container">
+          
           <!-- Header -->
           <div class="email-header">
             <div class="company-logo">
@@ -121,21 +125,21 @@ export const registrationOtpTemplate = async (userName: string, subject: string,
 
           <!-- Content -->
           <div class="email-content">
-            <p class="greeting">Welcome ${userName},</p>
+            <p class="greeting">Hello ${userName},</p>
 
             <p class="main-text">
-              Thank you for creating an account with <strong>ACCORD TECHNOLOGY</strong>.
-              To complete your registration, please verify your email address using the code below.
+              We received a request to log in to your <strong>ACCORD TECHNOLOGY</strong> account.
+              Please use the verification code below to complete your login.
             </p>
 
             <div class="verification-section">
-              <p class="verification-label">Your registration code</p>
+              <p class="verification-label">Your login verification code</p>
               <div class="verification-code">${otp}</div>
             </div>
 
             <p class="warning-text">
               This code will expire in a few minutes.  
-              If you didn’t create this account, you can safely ignore this email.
+              If you did not attempt to log in, please secure your account immediately.
             </p>
           </div>
 
@@ -144,6 +148,7 @@ export const registrationOtpTemplate = async (userName: string, subject: string,
             Regards,<br />
             Team <strong>ACCORD TECHNOLOGY</strong>
           </div>
+
         </div>
       </td>
     </tr>
@@ -151,8 +156,6 @@ export const registrationOtpTemplate = async (userName: string, subject: string,
 </body>
 </html>
 `;
-    //   await sendEmail(email, subject, html);
-    await sendEmail(email, subject, html)
 
-}
-
+  await sendEmail(email, subject, html);
+};

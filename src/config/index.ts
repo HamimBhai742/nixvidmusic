@@ -40,9 +40,14 @@ export default {
   cloudinary: {
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME as string,
     api_key: process.env.CLOUDINARY_API_KEY   as string,
-    api_secret: process.env.CLOUDINARY_API_SECRET as string,
+    api_secret: process.env.CLOUDINARY_API_SECRET as string
   },
   stripe:{
     secret_key: process.env.STRIPE_SECRET_KEY as string,
+  },
+  redis:{
+    port:process.env.REDIS_PORT,
+    host:process.env.REDIS_HOST,
+    password:process.env.REDIS_PASSWORD
   }
 };

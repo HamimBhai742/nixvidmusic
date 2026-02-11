@@ -23,7 +23,7 @@ const register=async(payload:UserPayload)=>{
 
     const otp=generateOTP()
     const otpExpiry=new Date(Date.now() + 2 * 60 * 1000)
-const userData={
+   const userData={
   ...payload,
   password:hashedPass,
   otp,
@@ -32,8 +32,19 @@ const userData={
   const user = await prisma.user.create({
     data: userData
   });
-  const a= await registrationOtpTemplate(user.name,'Your Verification OTP',user.email,otp)
-  console.log(a)
+
+  await otpQueueEmail.add(
+  "registrationOtp",
+  { userName: user.name, email: user.email, otpCode:otp, subject: "Your Verification OTP" },
+ {
+      jobId: `${user.id}-${Date.now()}`,
+      removeOnComplete: true,
+      attempts: 3,
+      backoff: { type: "fixed", delay: 5000 },
+    }
+);
+
+
   return {
     email: user.email,
     message: 'Verification OTP sent to your email. Please verify to activate account.'

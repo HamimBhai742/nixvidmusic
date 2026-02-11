@@ -2,6 +2,7 @@ import { Server } from "http";
 import app from "./app";
 import config from "./config";
 import { connectedDb } from "./app/DB/connected.db";
+import './app/bullMQ/init'
 // import { seedAdmin } from "./app/utils/seedAdmin";
 
 

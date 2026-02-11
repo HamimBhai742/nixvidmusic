@@ -10,7 +10,6 @@ import { otpEmailWorker } from "./workers/mailWorkers";
 process.on("SIGINT", async () => {
     console.log("🚨 Gracefully shutting down...");
 
-
     await otpEmailWorker.close();
     // await conversationListQueue.close();
     // await conversationListWorker.close();

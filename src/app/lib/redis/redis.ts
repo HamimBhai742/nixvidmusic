@@ -4,5 +4,4 @@ import { redis as redisConnect } from "./redisOptions";
 redisConnect.on("connect", () => console.log("✅ Redis connected successfully"));
 redisConnect.on("error", (err: any) => console.error("❌ Redis error:", err));
 
-console.log('first')
 export default redisConnect;

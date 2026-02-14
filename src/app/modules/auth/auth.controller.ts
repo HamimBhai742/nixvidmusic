@@ -3,6 +3,7 @@ import catchAsyncFn from "../../utils/catchAsyncFn";
 import { authService } from "./auth.service";
 import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from 'http-status'
+import { JwtPayload } from "jsonwebtoken";
 
 const login=catchAsyncFn(async(req:Request,res:Response)=>{
     const result=await authService.login(req.body)
@@ -34,6 +35,19 @@ sendResponse(res,{
 })
 })
 
-export const authController={verifyOTP,verifyAccount,login}
+const changePassword=catchAsyncFn(async(req:Request & { user?: JwtPayload },res:Response)=>{
+    const {email}=req.user as JwtPayload
+    const {newPassword,oldPassword}=req.body
+const user=await authService.changePassword(email,newPassword,oldPassword)
+
+sendResponse(res,{
+    success:true,
+    statusCode:httpStatus.OK,
+    message:user.message,
+    data:null
+})
+})
+
+export const authController={verifyOTP,verifyAccount,login,changePassword}
 
 

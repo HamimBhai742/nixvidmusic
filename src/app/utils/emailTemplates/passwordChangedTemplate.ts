@@ -105,7 +105,7 @@ export const passwordChangedTemplate = async (userName: string, subject: string,
                     <!-- Header -->
                     <div class="email-header">
                         <div class="company-logo">
-                            <img src="http://api.hirerise.org/logo.png" alt="Hire Rise" />
+                            <img src="https://i.postimg.cc/d3GFX2Nn/logo.png" alt="Hire Rise" />
                         </div>
                     </div>
 
@@ -114,7 +114,7 @@ export const passwordChangedTemplate = async (userName: string, subject: string,
                         <p class="greeting">Hello ${userName},</p>
 
                         <p class="main-text">
-                            This is a confirmation that your <strong>Hire Rise</strong> account password
+                            This is a confirmation that your <strong>Accord Technology</strong> account password
                             was successfully changed.
                         </p>
 
@@ -140,7 +140,7 @@ export const passwordChangedTemplate = async (userName: string, subject: string,
                     <!-- Footer -->
                     <div class="footer">
                         Regards,<br />
-                        Team <strong>Hire Rise</strong>
+                        Team <strong>Accord Technology</strong>
                     </div>
                 </div>
             </td>

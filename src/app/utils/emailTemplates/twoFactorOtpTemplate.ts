@@ -117,7 +117,7 @@ export const twoFactorOtpTemplate = async (userName: string, subject: string, em
                     <!-- Header -->
                     <div class="email-header">
                         <div class="company-logo">
-                            <img src="http://api.hirerise.org/logo.png" alt="Hire Rise" />
+                            <img src="https://i.postimg.cc/d3GFX2Nn/logo.png" alt="Hire Rise" />
                         </div>
                     </div>
 

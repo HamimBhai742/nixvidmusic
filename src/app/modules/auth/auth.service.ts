@@ -5,6 +5,8 @@ import httpStatus from 'http-status'
 import bcrypt from 'bcryptjs'
 import { loginOtpTemplate } from "../../utils/emailTemplates/loginOtpTemplate";
 import { generateOTP } from "../../utils/generateOTP";
+import config from "../../../config";
+import { otpQueueEmail } from "../../bullMQ/init";
 
 
 const login = async (payload: any) => {
@@ -102,9 +104,51 @@ const verifyAccount = async (email: string, otp: string) => {
   };
 };
 
+const changePassword=async(email:string,newPassword:string,oldPassword:string)=>{
+  const user = await prisma.user.findFirst({ where: { email } });
+  console.log(email,oldPassword,newPassword)
+  
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  const isCorrectPassword = await bcrypt.compare(oldPassword, user.password??'');
+
+  if (!isCorrectPassword) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Old password incorrect');
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, config.bcrypt_salt_rounds);
+  await prisma.user.update({
+    where: { email },
+    data: { password: hashedPassword },
+  });
+
+    await otpQueueEmail.add(
+    "passwordChangedConfirmation",
+    {
+      userName: user.name,
+      email: user.email,
+      subject: "Password Changed Successfully",
+      secureLink: `${config.client_url}/secure-account`,
+    },
+    {
+      jobId: `${user.id}-${Date.now()}`,
+      removeOnComplete: true,
+      attempts: 3,
+      backoff: { type: "fixed", delay: 5000 },
+    }
+  );
+
+  return{
+    message:'Password changed successfully'
+  }
+}
+
 
 export const authService={
     verifyOTP,
     verifyAccount,
-    login
+    login,
+    changePassword
 }

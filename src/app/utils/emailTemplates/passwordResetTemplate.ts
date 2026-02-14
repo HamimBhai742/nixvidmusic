@@ -109,7 +109,7 @@ export const passwordResetTemplate = async (userName: string, subject: string, e
 
                     <!-- Header -->
                     <div class="header">
-                        <img src="http://api.hirerise.org/logo.png" alt="Hire Rise" />
+                        <img src="https://i.postimg.cc/d3GFX2Nn/logo.png" alt="Hire Rise" />
                     </div>
 
                     <!-- Content -->

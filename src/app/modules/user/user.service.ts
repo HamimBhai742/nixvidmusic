@@ -10,7 +10,6 @@ import httpStatus from 'http-status'
 import { Secret } from "jsonwebtoken";
 import { generateForgetToken, generateToken } from "../../utils/generateToken";
 import { forgetPasswordOtpTemplate } from "../../utils/emailTemplates/forgetPasswordOtpTemplate";
-import { passwordChangedTemplate } from "../../utils/emailTemplates/passwordChangedTemplate";
 
 const register=async(payload:UserPayload)=>{
    const existingUser = await prisma.user.findFirst({
@@ -82,6 +81,7 @@ if(!user){
 }
 
 const requestPasswordReset = async (email: string) => {
+  console.log(email)
   if (!email) throw new AppError(httpStatus.BAD_REQUEST, 'Email is required');
 
   const user = await prisma.user.findUnique({ where: { email } });
@@ -101,7 +101,16 @@ const requestPasswordReset = async (email: string) => {
     data: { otp, otpExpiry, forgetPasswordToken: tempToken, forgetPasswordTokenExpires: otpExpiry },
   });
 
-  await forgetPasswordOtpTemplate(user.name,'Your Reset Password OTP',user.email,otp)
+  await otpQueueEmail.add(
+    "forgetPasswordOtp",
+    { userName: user.name, email: user.email, otpCode:otp, subject: "Your Verification OTP" },
+    {
+      jobId: `${user.id}-${Date.now()}`,
+      removeOnComplete: true,
+      attempts: 3,
+      backoff: { type: "fixed", delay: 5000 },
+    }
+  );
 
   return { message: 'OTP sent to email', tempToken };
 };
@@ -172,22 +181,21 @@ const resetPassword = async (email: string, token: string, newPassword: string) 
     },
   });
 
-  await passwordChangedTemplate(user.name,'Password Changed Successfully',user.email,`${config.client_url}/secure-account`)
-  // await otpQueueEmail.add(
-  //   "passwordChangedConfirmation",
-  //   {
-  //     userName: user.name,
-  //     email: user.email,
-  //     subject: "Password Changed Successfully",
-  //     secureLink: `${config.client_url}/secure-account`,
-  //   },
-  //   {
-  //     jobId: `${user.id}-${Date.now()}`,
-  //     removeOnComplete: true,
-  //     attempts: 3,
-  //     backoff: { type: "fixed", delay: 5000 },
-  //   }
-  // );
+  await otpQueueEmail.add(
+    "resetPasswordSuccess",
+    {
+      userName: user.name,
+      email: user.email,
+      subject: "Password Changed Successfully",
+      secureLink: `${config.client_url}/secure-account`,
+    },
+    {
+      jobId: `${user.id}-${Date.now()}`,
+      removeOnComplete: true,
+      attempts: 3,
+      backoff: { type: "fixed", delay: 5000 },
+    }
+  );
 
   return { message: 'Password reset successfully' };
 };

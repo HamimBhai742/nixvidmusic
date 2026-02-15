@@ -106,7 +106,6 @@ const verifyAccount = async (email: string, otp: string) => {
 
 const changePassword=async(email:string,newPassword:string,oldPassword:string)=>{
   const user = await prisma.user.findFirst({ where: { email } });
-  console.log(email,oldPassword,newPassword)
   
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, 'User not found');

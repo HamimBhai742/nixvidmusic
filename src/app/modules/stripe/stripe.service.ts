@@ -5,13 +5,12 @@ import { stripe } from "../../lib/stripe";
 import { prisma } from "../../utils/prisma";
 import { AppError } from "../../error/AppError";
 
-
 // ===== Interfaces =====
 interface CreatePlanPayload {
   title: string;
   price: number;
   currency: string;
-  billingPeriod: "month" | "year" 
+  billingPeriod: "month" | "year";
   features: any; // features object array
 }
 
@@ -49,15 +48,14 @@ export const createSubscriptionIntoDb = async (payload: CreatePlanPayload) => {
 
   // Features JSON string হিসেবে save করা
 
-
   const duplicatePlan = await prisma.subscriptionPlan.findFirst({
     where: {
-      name: payload.title
-    }
-  })
+      name: payload.title,
+    },
+  });
 
   if (duplicatePlan) {
-    throw new AppError(httpStatus.UNAUTHORIZED, 'Plan is already exist');
+    throw new AppError(httpStatus.UNAUTHORIZED, "Plan is already exist");
   }
 
   const plan = await prisma.subscriptionPlan.create({
@@ -70,7 +68,6 @@ export const createSubscriptionIntoDb = async (payload: CreatePlanPayload) => {
       productId,
       pricingId,
     },
-
   });
 
   return plan;
@@ -80,42 +77,71 @@ export const createSubscriptionIntoDb = async (payload: CreatePlanPayload) => {
 export const getAllSubscriptionPlans = async () => {
   return prisma.subscriptionPlan.findMany({
     orderBy: { createdAt: "asc" },
-
   });
 };
 
 // ===== Purchase Subscription =====
-export const purchaseSubscription = async (payload: PurchaseSubscriptionPayload, userId: string) => {
+export const purchaseSubscription = async (
+  payload: PurchaseSubscriptionPayload,
+  userId: string,
+) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new AppError(httpStatus.NOT_FOUND, "User not found");
 
-  const plan = await prisma.subscriptionPlan.findUnique({ where: { id: payload.subscriptionId } });
-  if (!plan) throw new AppError(httpStatus.NOT_FOUND, "Subscription plan not found");
+  const plan = await prisma.subscriptionPlan.findUnique({
+    where: { id: payload.subscriptionId },
+  });
+  if (!plan)
+    throw new AppError(httpStatus.NOT_FOUND, "Subscription plan not found");
 
   const existing = await prisma.userSubscription.findFirst({
     where: { userId, status: SubscriptionStatus.ACTIVE },
   });
-  if (existing) throw new AppError(httpStatus.CONFLICT, "You already have an active subscription.");
+  if (existing)
+    throw new AppError(
+      httpStatus.CONFLICT,
+      "You already have an active subscription.",
+    );
 
   // Free plan
   if ((plan.price ?? 0) === 0) {
     return prisma.userSubscription.upsert({
       where: { userId_planId_unique: { userId, planId: plan.id } },
-      update: { status: SubscriptionStatus.ACTIVE, startDate: new Date(), updatedAt: new Date() },
-      create: { userId, planId: plan.id, status: SubscriptionStatus.ACTIVE, startDate: new Date() },
+      update: {
+        status: SubscriptionStatus.ACTIVE,
+        startDate: new Date(),
+        updatedAt: new Date(),
+      },
+      create: {
+        userId,
+        planId: plan.id,
+        status: SubscriptionStatus.ACTIVE,
+        startDate: new Date(),
+      },
     });
   }
 
   if (!plan.pricingId)
-    throw new AppError(httpStatus.BAD_REQUEST, "This plan is not configured with a Stripe price.");
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "This plan is not configured with a Stripe price.",
+    );
   if (!payload.paymentMethodId)
-    throw new AppError(httpStatus.BAD_REQUEST, "paymentMethodId is required for paid plans");
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "paymentMethodId is required for paid plans",
+    );
 
   const fullname = user.name || user.email;
-  const customer = await stripe.customers.create({ email: user.email, name: fullname });
+  const customer = await stripe.customers.create({
+    email: user.email,
+    name: fullname,
+  });
   const stripeCustomerId = customer.id;
 
-  await stripe.paymentMethods.attach(payload.paymentMethodId, { customer: stripeCustomerId });
+  await stripe.paymentMethods.attach(payload.paymentMethodId, {
+    customer: stripeCustomerId,
+  });
   await stripe.customers.update(stripeCustomerId, {
     invoice_settings: { default_payment_method: payload.paymentMethodId },
   });
@@ -126,6 +152,7 @@ export const purchaseSubscription = async (payload: PurchaseSubscriptionPayload,
     expand: ["latest_invoice.payment_intent"],
     metadata: { userId, subscriptionId: plan.id },
     payment_settings: { payment_method_types: ["card"] },
+    trial_period_days: 7
   });
 
   return prisma.userSubscription.create({
@@ -141,11 +168,19 @@ export const purchaseSubscription = async (payload: PurchaseSubscriptionPayload,
 };
 
 // ===== Unsubscribe =====
-export const unsubscribeSubscription = async (userId: string, planId: string) => {
-  const userSub = await prisma.userSubscription.findFirst({ where: { userId, planId } });
-  if (!userSub) throw new AppError(httpStatus.NOT_FOUND, "User subscription not found");
+export const unsubscribeSubscription = async (
+  userId: string,
+  planId: string,
+) => {
+  const userSub = await prisma.userSubscription.findFirst({
+    where: { userId, planId },
+  });
+  if (!userSub)
+    throw new AppError(httpStatus.NOT_FOUND, "User subscription not found");
 
-  const plan = await prisma.subscriptionPlan.findUnique({ where: { id: planId } });
+  const plan = await prisma.subscriptionPlan.findUnique({
+    where: { id: planId },
+  });
   if (!plan) throw new AppError(httpStatus.NOT_FOUND, "Plan not found");
 
   if ((plan.price ?? 0) === 0) {
@@ -165,25 +200,31 @@ export const unsubscribeSubscription = async (userId: string, planId: string) =>
     }
   }
 
-
-
   return { success: true };
 };
 
 // ===== Stripe Webhook Handlers =====
-export const handleStripeSubscriptionCreated = async (stripeSub: Stripe.Subscription) => {
+export const handleStripeSubscriptionCreated = async (
+  stripeSub: Stripe.Subscription,
+) => {
   const metadata = stripeSub.metadata || {};
   const userId = metadata.userId;
   const subscriptionId = metadata.subscriptionId;
 
   if (!userId || !subscriptionId) return;
 
-  const existing = await prisma.userSubscription.findFirst({ where: { transactionId: stripeSub.id } });
+  const existing = await prisma.userSubscription.findFirst({
+    where: { transactionId: stripeSub.id },
+  });
 
   if (existing) {
     await prisma.userSubscription.update({
       where: { id: existing.id },
-      data: { status: SubscriptionStatus.ACTIVE, transactionId: stripeSub.id, updatedAt: new Date() },
+      data: {
+        status: SubscriptionStatus.ACTIVE,
+        transactionId: stripeSub.id,
+        updatedAt: new Date(),
+      },
     });
   } else {
     await prisma.userSubscription.create({
@@ -198,14 +239,18 @@ export const handleStripeSubscriptionCreated = async (stripeSub: Stripe.Subscrip
   }
 };
 
-export const handleStripeSubscriptionDeleted = async (stripeSub: Stripe.Subscription) => {
+export const handleStripeSubscriptionDeleted = async (
+  stripeSub: Stripe.Subscription,
+) => {
   await prisma.userSubscription.updateMany({
     where: { transactionId: stripeSub.id },
     data: { status: SubscriptionStatus.CANCELLED, cancelAt: new Date() },
   });
 };
 
-export const handleInvoicePaymentSucceeded = async (invoice: Stripe.Invoice) => {
+export const handleInvoicePaymentSucceeded = async (
+  invoice: Stripe.Invoice,
+) => {
   const subscriptionId = (invoice as any).subscription as string | undefined;
   if (!subscriptionId) return;
 

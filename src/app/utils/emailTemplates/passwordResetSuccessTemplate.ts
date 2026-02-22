@@ -95,7 +95,7 @@ export const passwordResetSuccessTemplate = async (
                     <!-- Header -->
                     <div class="email-header">
                         <div class="company-logo">
-                            <img src="https://i.postimg.cc/d3GFX2Nn/logo.png" alt="Your Company Logo" />
+                            <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Accord Technology" />
                         </div>
                     </div>
 
@@ -119,7 +119,7 @@ export const passwordResetSuccessTemplate = async (
                     <!-- Footer -->
                     <div class="footer">
                         Regards,<br />
-                        Team <strong>Your Company Name</strong>
+                        Team <strong>Accord Technology</strong>
                     </div>
                 </div>
             </td>

@@ -110,7 +110,7 @@ export const parentApprovalOtpTemplate = async (userName: string, subject: strin
 
                     <!-- Header -->
                     <div class="header">
-                        <img src="http://api.hirerise.org/logo.png" alt="Hire Rise" />
+                        <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Hire Rise" />
                     </div>
 
                     <!-- Content -->

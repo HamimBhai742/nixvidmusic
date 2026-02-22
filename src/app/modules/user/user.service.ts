@@ -10,6 +10,7 @@ import httpStatus from 'http-status'
 import { Secret } from "jsonwebtoken";
 import { generateForgetToken, generateToken } from "../../utils/generateToken";
 import { forgetPasswordOtpTemplate } from "../../utils/emailTemplates/forgetPasswordOtpTemplate";
+import { ContactCategory } from "@prisma/client";
 
 const register=async(payload:UserPayload)=>{
    const existingUser = await prisma.user.findFirst({
@@ -199,6 +200,15 @@ const resetPassword = async (email: string, token: string, newPassword: string) 
 
   return { message: 'Password reset successfully' };
 };
+
+
+const contactSupport=async(name:string,email:string,message:string,category:ContactCategory,subject:string)=>{
+  const data={name,email,message,category,subject}
+//send email to support team
+
+  await prisma.contact.create({data})
+}
+
 
 
 export const userServices={

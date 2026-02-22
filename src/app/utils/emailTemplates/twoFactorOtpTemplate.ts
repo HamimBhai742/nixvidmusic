@@ -117,7 +117,7 @@ export const twoFactorOtpTemplate = async (userName: string, subject: string, em
                     <!-- Header -->
                     <div class="email-header">
                         <div class="company-logo">
-                            <img src="https://i.postimg.cc/d3GFX2Nn/logo.png" alt="Hire Rise" />
+                            <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Accord Technology" />
                         </div>
                     </div>
 
@@ -126,7 +126,7 @@ export const twoFactorOtpTemplate = async (userName: string, subject: string, em
                         <p class="greeting">Hello ${userName},</p>
 
                         <p class="main-text">
-                            We noticed a login attempt to your <strong>Hire Rise</strong> account.
+                            We noticed a login attempt to your <strong>Accord Technology</strong> account.
                             To continue, please verify your identity using the one-time code below.
                         </p>
 
@@ -147,7 +147,7 @@ export const twoFactorOtpTemplate = async (userName: string, subject: string, em
                     <!-- Footer -->
                     <div class="footer">
                         Regards,<br />
-                        Team <strong>Hire Rise</strong>
+                        Team <strong>Accord Technology</strong>
                     </div>
                 </div>
             </td>

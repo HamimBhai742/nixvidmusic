@@ -5,6 +5,7 @@ import path from "path";
 import httpStatus from 'http-status'
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import router from "./app/routes";
+import { stripeWebhook } from "./app/modules/stripe/stripeWebhook";
 
 const app: Application = express();
 app.use(
@@ -27,7 +28,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/v1", router);
-
+app.use("/api/v1/webhook", express.raw({ type: "application/json" }), stripeWebhook);
 app.use(globalErrorHandler);
 
 app.use((req: Request, res: Response, next: NextFunction) => {

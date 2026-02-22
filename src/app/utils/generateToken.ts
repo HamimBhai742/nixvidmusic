@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client'
 
 export const generateToken=async(user:Prisma.UserCreateInput)=>{
     const payload= {
-      id: user.id,
+      userId: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
@@ -17,7 +17,7 @@ export const generateToken=async(user:Prisma.UserCreateInput)=>{
 
 export const generateForgetToken=async(user:any,secret:Secret,expiresIn:string)=>{
     const payload= {
-      id: user.id,
+      userId: user.id,
       name: user.name,
       email: user.email,
       role: user.role,

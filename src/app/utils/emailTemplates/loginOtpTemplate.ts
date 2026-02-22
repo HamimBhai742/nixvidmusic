@@ -119,7 +119,7 @@ export const loginOtpTemplate = async (
           <!-- Header -->
           <div class="email-header">
             <div class="company-logo">
-              <img src="https://i.postimg.cc/d3GFX2Nn/logo.png" alt="Accord Technology" />
+              <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Accord Technology" />
             </div>
           </div>
 

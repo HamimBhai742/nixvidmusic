@@ -49,17 +49,99 @@ model User {
   goal                          String?
   focus                         String?
   isEmailVerified               Boolean            @default(false)
-  emailVerificationToken        String?
-  emailVerificationTokenExpires DateTime?
   language                      String?
   gender                        Gender             @default(MALE)
-  twoFactor                     Boolean?           @default(false)
-  twoFactorOTP                  String?
-  twoFactorOTPExpires           DateTime?
   createdAt                     DateTime           @default(now())
   updatedAt                     DateTime           @updatedAt
 
+  subscriptions UserSubscription[]
+
   @@map("users")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PENDING
+}
+
+enum BillingPeriod {
+  MONTHLY
+  YEARLY
+}
+
+model SubscriptionPlan {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  name          String        @unique
+  price         Float         @default(0) // human readable price in base currency (e.g. 9.99)
+  currency      String        @default("usd")
+  billingPeriod BillingPeriod @default(MONTHLY)
+  isPopular     Boolean       @default(false)
+  features      Json
+  benefits      String[]
+  productId     String?     // Stripe product id (nullable for free plans)
+  pricingId     String?    // Stripe price id (nullable for free/lifetime)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  userSubscriptions UserSubscription[]
+}
+
+model UserSubscription {
+  id            String             @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String             @db.ObjectId
+  planId        String             @db.ObjectId
+  status        SubscriptionStatus @default(ACTIVE)
+  startDate     DateTime           @default(now())
+  endDate       DateTime?
+  cancelAt      DateTime?
+  paymentMethod String?            // "stripe", "paypal" etc
+  transactionId String?           // store payment gateway ID (subscription id / payment id)
+  autoRenew     Boolean            @default(true)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  // Relations
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan          SubscriptionPlan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, planId], name: "userId_planId_unique")
+}
+
+
+
+model Contact {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  subject     String
+  email       String
+  category    ContactCategory
+  status      ContactStatus       @default(OPEN)
+  message     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("contacts")
+}
+
+
+
+enum ContactStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum ContactCategory {
+  GeneralInquiry    @map("General Inquiry")
+  TechnicalIssue    @map("Technical Issue")
+  BillingPayments   @map("Billing & Payments")
+  AccountAccess     @map("Account Access")
+  FeatureRequest    @map("Feature Request")
+  Other             @map("Other")  
 }
 
 enum UserStatus {

@@ -3,6 +3,7 @@ import { userRoutes } from "../modules/user/user.routes";
 import { authRoutes } from "../modules/auth/auth.routes";
 import { upload } from "../middleware/upload";
 import { uploadFile } from "../utils/uploadFile";
+import { subscriptionRouter } from "../modules/stripe/stripe.route";
 
 
 const router =Router();
@@ -36,10 +37,10 @@ const routes=[
     //     path:'/payments',
     //     route:paymentRoutes
     // },
-    // {
-    //     path:'/subscriptions',
-    //     route:subscriptionRouter
-    // },
+    {
+        path:'/stripe',
+        route:subscriptionRouter
+    },
     // {
     //     path:'/admin',
     //     route:adminRoutes

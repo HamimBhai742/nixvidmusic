@@ -314,7 +314,7 @@ export const forgetPasswordOtpTemplate = async (userName: string, subject: strin
                     <div class="email-header">
                         <div class="company-logo">
                             <div class="logo-icon">
-                                <img src="https://i.postimg.cc/d3GFX2Nn/logo.png" alt="logo" />
+                                <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="logo" />
                             </div>
                         </div>
                     </div>

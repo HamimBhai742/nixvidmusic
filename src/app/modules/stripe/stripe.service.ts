@@ -127,11 +127,11 @@ export const purchaseSubscription = async (
       "This plan is not configured with a Stripe price.",
     );
     
-  // if (!payload.paymentMethodId)
-  //   throw new AppError(
-  //     httpStatus.BAD_REQUEST,
-  //     "paymentMethodId is required for paid plans",
-  //   );
+  if (!payload.paymentMethodId)
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "paymentMethodId is required for paid plans",
+    );
 
   const fullname = user.name || user.email;
   const customer = await stripe.customers.create({
@@ -140,16 +140,17 @@ export const purchaseSubscription = async (
   });
   const stripeCustomerId = customer.id;
 
-  // await stripe.paymentMethods.attach(payload.paymentMethodId, {
-  //   customer: stripeCustomerId,
-  // });
-  // await stripe.customers.update(stripeCustomerId, {
-  //   invoice_settings: { default_payment_method: payload.paymentMethodId },
-  // });
+  await stripe.paymentMethods.attach(payload.paymentMethodId, {
+    customer: stripeCustomerId,
+  });
+  await stripe.customers.update(stripeCustomerId, {
+    invoice_settings: { default_payment_method: payload.paymentMethodId },
+  });
 
   const stripeSub = await stripe.subscriptions.create({
     customer: stripeCustomerId,
     items: [{ price: plan.pricingId }],
+    payment_behavior:"default_incomplete",
     expand: ["latest_invoice.payment_intent"],
     metadata: { userId, subscriptionId: plan.id },
     payment_settings: { payment_method_types: ["card"] },

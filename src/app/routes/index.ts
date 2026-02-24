@@ -4,6 +4,7 @@ import { authRoutes } from "../modules/auth/auth.routes";
 import { upload } from "../middleware/upload";
 import { uploadFile } from "../utils/uploadFile";
 import { subscriptionRouter } from "../modules/stripe/stripe.route";
+import { supportRoutes } from "../modules/support/support.routes";
 
 
 const router =Router();
@@ -41,10 +42,10 @@ const routes=[
         path:'/stripe',
         route:subscriptionRouter
     },
-    // {
-    //     path:'/admin',
-    //     route:adminRoutes
-    // }
+    {
+        path:'/support',
+        route:supportRoutes
+    }
 ]
 
 

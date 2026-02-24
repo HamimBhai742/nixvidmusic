@@ -110,39 +110,35 @@ model UserSubscription {
   @@unique([userId, planId], name: "userId_planId_unique")
 }
 
-
-
-
-model Contact {
+model SupportTicket {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
-  subject     String
   email       String
-  category    ContactCategory
-  status      ContactStatus       @default(OPEN)
+  category    SupportCategory
+  subject     String
   message     String
+  status      TicketStatus @default(OPEN)
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  @@map("contacts")
 }
 
 
 
-enum ContactStatus {
+enum TicketStatus {
   OPEN
   IN_PROGRESS
   RESOLVED
   CLOSED
 }
 
-enum ContactCategory {
-  GeneralInquiry    @map("General Inquiry")
-  TechnicalIssue    @map("Technical Issue")
-  BillingPayments   @map("Billing & Payments")
-  AccountAccess     @map("Account Access")
-  FeatureRequest    @map("Feature Request")
-  Other             @map("Other")  
+enum SupportCategory {
+  GENERAL_INQUIRY
+  TECHNICAL_ISSUE
+  BILLING_PAYMENTS
+  ACCOUNT_ACCESS
+  FEATURE_REQUEST
+  OTHER
 }
 
 enum UserStatus {

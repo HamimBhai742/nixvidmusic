@@ -3,6 +3,7 @@ import app from "./app";
 import config from "./config";
 import { connectedDb } from "./app/DB/connected.db";
 import './app/bullMQ/init'
+import seedAdmin from "./app/DB";
 // import { seedAdmin } from "./app/utils/seedAdmin";
 
 
@@ -12,6 +13,7 @@ async function main() {
   // Express + HTTP server
   const httpServer: Server = app.listen(port, () => {
     console.log(`✅ Server is running on port ${port}`);
+    seedAdmin();
     connectedDb();
   });
 

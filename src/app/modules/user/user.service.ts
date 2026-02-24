@@ -9,8 +9,7 @@ import { AppError } from "../../error/AppError";
 import httpStatus from "http-status";
 import { Secret } from "jsonwebtoken";
 import { generateForgetToken, generateToken } from "../../utils/generateToken";
-import { forgetPasswordOtpTemplate } from "../../utils/emailTemplates/forgetPasswordOtpTemplate";
-import { ContactCategory, User } from "@prisma/client";
+import { User } from "@prisma/client";
 
 const register = async (payload: UserPayload) => {
   const existingUser = await prisma.user.findFirst({
@@ -237,18 +236,6 @@ const resetPassword = async (
   return { message: "Password reset successfully" };
 };
 
-const contactSupport = async (
-  name: string,
-  email: string,
-  message: string,
-  category: ContactCategory,
-  subject: string,
-) => {
-  const data = { name, email, message, category, subject };
-  //send email to support team
-
-  await prisma.contact.create({ data });
-};
 
 const updateUserProfile = async (userId: string, data: Partial<User>) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });

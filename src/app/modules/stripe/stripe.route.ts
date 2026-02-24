@@ -6,14 +6,16 @@ const router = Router();
 
 router.post("/create-subscription", 
   // auth(),
-
 subscriptionController.createPlanController);
+
 router.get("/get-subscription",
   //  auth(),
     subscriptionController.getAllPlansController);
+
 router.post("/purchase-subscription",
    checkAuth(),
     subscriptionController.purchaseSubscriptionController);
+    
 router.post("/un-subscription",
    checkAuth(),
     subscriptionController.unsubscribeSubscriptionController);

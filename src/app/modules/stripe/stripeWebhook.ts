@@ -14,7 +14,7 @@ export const stripeWebhook = async (req: Request, res: Response) => {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEB_HOOK_SK!);
   } catch (err) {
     console.error("Webhook signature verification failed", err);
     return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
@@ -23,6 +23,8 @@ export const stripeWebhook = async (req: Request, res: Response) => {
   try {
     switch (event.type) {
       case "customer.subscription.created":
+        await handleStripeSubscriptionCreated(event.data.object as Stripe.Subscription);
+        break;
       case "customer.subscription.updated":
         await handleStripeSubscriptionCreated(event.data.object as Stripe.Subscription);
         break;

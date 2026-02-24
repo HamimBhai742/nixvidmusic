@@ -2,52 +2,66 @@ import { Request, Response } from "express";
 import catchAsyncFn from "../../utils/catchAsyncFn";
 import { authService } from "./auth.service";
 import { sendResponse } from "../../utils/sendResponse";
-import httpStatus from 'http-status'
+import httpStatus from "http-status";
 import { IJwtPayload } from "../../interface/user.interface";
 
-const login=catchAsyncFn(async(req:Request,res:Response)=>{
-    const result=await authService.login(req.body)
+const login = catchAsyncFn(async (req: Request, res: Response) => {
+  const result = await authService.login(req.body);
 
-    sendResponse(res,{success:true,statusCode:httpStatus.OK,message:result.message,data:result.email})
-})
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: result.message as string,
+    data: result.email,
+  });
+});
 
-const verifyOTP=catchAsyncFn(async(req:Request,res:Response)=>{
-    const {email,otp}=req.body
-const user=await authService.verifyOTP(email,otp)
+const verifyOTP = catchAsyncFn(async (req: Request, res: Response) => {
+  const { email, otp } = req.body;
+  const user = await authService.verifyOTP(email, otp);
 
-sendResponse(res,{
-    success:true,
-    statusCode:httpStatus.OK,
-    message:"You have successfully Sign in",
-    data:user
-})
-})
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "You have successfully Sign in",
+    data: user,
+  });
+});
 
-const verifyAccount=catchAsyncFn(async(req:Request,res:Response)=>{
-    const {email,otp}=req.body
-const user=await authService.verifyAccount(email,otp)
+const verifyAccount = catchAsyncFn(async (req: Request, res: Response) => {
+  const { email, otp } = req.body;
+  const user = await authService.verifyAccount(email, otp);
 
-sendResponse(res,{
-    success:true,
-    statusCode:httpStatus.OK,
-    message:"You have successfully Sign Up",
-    data:user
-})
-})
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "You have successfully Sign Up",
+    data: user,
+  });
+});
 
-const changePassword=catchAsyncFn(async(req:Request & { user?: IJwtPayload },res:Response)=>{
-    const {email}=req.user as IJwtPayload
-    const {newPassword,oldPassword}=req.body
-const user=await authService.changePassword(email,newPassword,oldPassword)
+const changePassword = catchAsyncFn(
+  async (req: Request & { user?: IJwtPayload }, res: Response) => {
+    const { email } = req.user as IJwtPayload;
+    const { newPassword, oldPassword } = req.body;
+    const user = await authService.changePassword(
+      email,
+      newPassword,
+      oldPassword,
+    );
 
-sendResponse(res,{
-    success:true,
-    statusCode:httpStatus.OK,
-    message:user.message,
-    data:null
-})
-})
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: user.message,
+      data: null,
+    });
+  },
+);
 
-export const authController={verifyOTP,verifyAccount,login,changePassword}
-
-
+export const authController = {
+  verifyOTP,
+  verifyAccount,
+  login,
+  changePassword,
+};

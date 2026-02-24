@@ -5,7 +5,7 @@ import { resendOtpSchema, resetPasswordSchema, userZodSchema, verifyOtpSchema, v
 
 const router=Router()
 
-router.post('/register',validateRequest(userZodSchema),userController.register)
+router.post('/sign-up',validateRequest(userZodSchema),userController.register)
 router.post('/verify-register-otp',validateRequest(verifyRegisterOTPSchema),userController.verifyRegisterOTP)
 router.post('/verify-forget-otp',validateRequest(verifyOtpSchema),userController.verifyForgetPasswordOtp)
 router.post('/forgot-password',validateRequest(resendOtpSchema),userController.requestPasswordReset)

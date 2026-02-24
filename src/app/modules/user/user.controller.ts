@@ -73,7 +73,7 @@ const resetPassword = catchAsyncFn(async (req: Request, res: Response) => {
   const result = await userServices.resetPassword(
     req.body.email,
     req.body.token,
-    req.body.password,
+    req.body.newPassword,
   );
 
   sendResponse(res, {

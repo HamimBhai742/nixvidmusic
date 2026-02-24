@@ -45,6 +45,7 @@ const login = async (payload: any) => {
         userName: userData.name,
         email: userData.email,
         otpCode: otp,
+        subject: "Your Verification OTP"
       },
       {
         jobId: `${userData.id}-${Date.now()}`,
@@ -98,6 +99,7 @@ const resendLoginOTP = async (email: string) => {
       userName: user.name,
       email: user.email,
       otpCode: otp,
+      subject: "Your Verification OTP"
     },
     {
       jobId: `${user.id}-${Date.now()}`,

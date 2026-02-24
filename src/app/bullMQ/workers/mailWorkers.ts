@@ -12,6 +12,7 @@ import { passwordResetSuccessTemplate } from "../../utils/emailTemplates/passwor
 import { supportAdminTemplate } from "../../utils/emailTemplates/adminSupportTemplate";
 import { supportAutoReplyTemplate } from "../../utils/emailTemplates/userAutoReplyTemplate";
 import { supportClosedTemplate } from "../../utils/emailTemplates/supportTicketClosedTemplate";
+import { loginOtpTemplate } from "../../utils/emailTemplates/loginOtpTemplate";
 
 export const otpEmailWorker = new Worker(
   "otp-queue-email",
@@ -32,6 +33,11 @@ export const otpEmailWorker = new Worker(
         const { userName, email, otpCode, subject } = job.data;
         console.log(userName);
         await registrationOtpTemplate(userName, subject, email, otpCode);
+        return "Otp end job completed";
+      }
+      case "loginOtp": {
+        const { userName, email, otpCode, subject } = job.data;
+        await loginOtpTemplate(userName, subject, email, otpCode);
         return "Otp end job completed";
       }
       case "twoFactorOtp": {

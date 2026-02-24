@@ -1,9 +1,9 @@
 import jwt, { Secret, SignOptions } from 'jsonwebtoken'
 import config from '../../config'
-import { Prisma } from '@prisma/client'
+import { IUser } from '../interface/user.interface'
 
 
-export const generateToken=async(user:Prisma.UserCreateInput)=>{
+export const generateToken=async(user:Partial<IUser>)=>{
     const payload= {
       userId: user.id,
       name: user.name,

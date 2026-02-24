@@ -5,20 +5,10 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  // url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
-enum UserRoleEnum {
-  USER
-  ADMIN
-  SUPERADMIN
-}
 
-enum Gender {
-  MALE
-  FEMALE
-  OTHER
-}
 
 model User {
   id                            String             @id @default(auto()) @map("_id") @db.ObjectId
@@ -57,6 +47,18 @@ model User {
   subscriptions UserSubscription[]
 
   @@map("users")
+}
+
+enum UserRoleEnum {
+  USER
+  ADMIN
+  SUPERADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }
 
 enum SubscriptionStatus {

@@ -16,8 +16,22 @@ const register = catchAsyncFn(async (req: Request, res: Response) => {
   });
 });
 
-const resendOTP = catchAsyncFn(async (req: Request, res: Response) => {
-  const result = await userServices.resendOTP(req.body.email);
+const verifyRegisterOTP = catchAsyncFn(async (req: Request, res: Response) => {
+  const result = await userServices.verifyRegisterOtp(
+    req.body.email,
+    req.body.otp,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "You have successfully Sign up",
+    data: result,
+  });
+});
+
+const resendRegisterOTP = catchAsyncFn(async (req: Request, res: Response) => {
+  const result = await userServices.resendRegisterOTP(req.body.email);
 
   sendResponse(res, {
     success: true,
@@ -40,8 +54,8 @@ const requestPasswordReset = catchAsyncFn(
   },
 );
 
-const verifyOtp = catchAsyncFn(async (req: Request, res: Response) => {
-  const result = await userServices.verifyOtp(
+const verifyForgetPasswordOtp = catchAsyncFn(async (req: Request, res: Response) => {
+  const result = await userServices.verifyForgetPasswordOtp(
     req.body.email,
     req.body.otp,
     req.body.token,
@@ -89,9 +103,10 @@ const updateUserProfile = catchAsyncFn(
 
 export const userController = {
   register,
-  resendOTP,
+  resendRegisterOTP,
   requestPasswordReset,
-  verifyOtp,
+  verifyForgetPasswordOtp,
   resetPassword,
   updateUserProfile,
+  verifyRegisterOTP
 };

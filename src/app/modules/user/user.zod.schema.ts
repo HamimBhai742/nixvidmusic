@@ -22,3 +22,8 @@ export const resetPasswordSchema = z.object({
     token: z.string(),
     email: z.email()
 });
+
+export const verifyRegisterOTPSchema = z.object({
+    otp: z.string().min(6,'OTP must be 6 digits').max(6,'OTP must be 6 digits'),
+    email: z.email()
+});

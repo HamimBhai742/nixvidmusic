@@ -4,7 +4,7 @@ export const loginOtpTemplate = async (
   userName: string,
   subject: string,
   email: string,
-  otp: string
+  otpCode: string
 ) => {
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -134,7 +134,7 @@ export const loginOtpTemplate = async (
 
             <div class="verification-section">
               <p class="verification-label">Your login verification code</p>
-              <div class="verification-code">${otp}</div>
+              <div class="verification-code">${otpCode}</div>
             </div>
 
             <p class="warning-text">

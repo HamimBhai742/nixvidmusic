@@ -1,9 +1,9 @@
 import Stripe from "stripe";
 import httpStatus from "http-status";
-import { SubscriptionStatus } from "@prisma/client";
 import { stripe } from "../../lib/stripe";
 import { prisma } from "../../utils/prisma";
 import { AppError } from "../../error/AppError";
+import { SubscriptionStatus } from "../../interface/Stripe.interface";
 
 // ===== Interfaces =====
 interface CreatePlanPayload {

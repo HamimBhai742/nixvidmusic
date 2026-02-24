@@ -1,6 +1,6 @@
 import config from "../../../config";
 import bcrypt from "bcryptjs";
-import { UserPayload } from "../../interface/user.interface";
+import { IUser, UserPayload } from "../../interface/user.interface";
 import { generateOTP } from "../../utils/generateOTP";
 import { prisma } from "../../utils/prisma";
 import { otpQueueEmail } from "../../bullMQ/queues/mailQueues";
@@ -9,7 +9,6 @@ import { AppError } from "../../error/AppError";
 import httpStatus from "http-status";
 import { Secret } from "jsonwebtoken";
 import { generateForgetToken, generateToken } from "../../utils/generateToken";
-import { User } from "@prisma/client";
 
 const register = async (payload: UserPayload) => {
   const existingUser = await prisma.user.findFirst({
@@ -58,7 +57,45 @@ const register = async (payload: UserPayload) => {
   };
 };
 
-const resendOTP = async (email: string) => {
+const verifyRegisterOtp = async (email: string, otp: string) => {
+  if (!email || !otp)
+    throw new AppError(httpStatus.BAD_REQUEST, "All fields are required");
+
+  const user = await prisma.user.findFirst({
+    where: { email },
+  });
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  if (user.otp !== otp) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid OTP");
+  }
+
+  if (user.otpExpiry && user.otpExpiry < new Date()) {
+    throw new AppError(httpStatus.BAD_REQUEST, "OTP expired");
+  }
+
+  await prisma.user.update({
+    where: {
+      email,
+    },
+    data: {
+      otp: null,
+      otpExpiry: null,
+    },
+  });
+
+  const accessToken = await generateToken(user);  
+
+  return {
+    name: user.name,
+    email: user.email,
+    accessToken,
+  }
+};
+
+const resendRegisterOTP = async (email: string) => {
   const user = await prisma.user.findFirst({
     where: { email },
   });
@@ -79,11 +116,20 @@ const resendOTP = async (email: string) => {
     },
   });
 
-  await registrationOtpTemplate(
-    user.name,
-    "Your Verification OTP",
-    user.email,
-    otp,
+  await otpQueueEmail.add(
+    "registrationOtp",
+    {
+      userName: user.name,
+      email: user.email,
+      otpCode: otp,
+      subject: "Your Verification OTP",
+    },
+    {
+      jobId: `${user.id}-${Date.now()}`,
+      removeOnComplete: true,
+      attempts: 3,
+      backoff: { type: "fixed", delay: 5000 },
+    },
   );
 
   return {
@@ -139,7 +185,11 @@ const requestPasswordReset = async (email: string) => {
   return { message: "OTP sent to email", tempToken };
 };
 
-const verifyOtp = async (email: string, otp: string, token: string) => {
+const verifyForgetPasswordOtp = async (
+  email: string,
+  otp: string,
+  token: string,
+) => {
   if (!email || !otp || !token)
     throw new AppError(httpStatus.BAD_REQUEST, "All fields are required");
 
@@ -204,7 +254,7 @@ const resetPassword = async (
   if (!newPassword.trim())
     throw new AppError(httpStatus.BAD_REQUEST, "Password cannot be empty");
 
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  const hashedPassword = await bcrypt.hash(newPassword, config.bcrypt_salt_rounds);
 
   await prisma.user.update({
     where: { id: user.id },
@@ -236,22 +286,25 @@ const resetPassword = async (
   return { message: "Password reset successfully" };
 };
 
-
-const updateUserProfile = async (userId: string, data: Partial<User>) => {
+const updateUserProfile = async (userId: string, data: Partial<IUser>) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new AppError(httpStatus.NOT_FOUND, "User not found");
 
-  const hashedPassword=await bcrypt.hash(data.password as string,config.bcrypt_salt_rounds)
-  data.password=hashedPassword
+  const hashedPassword = await bcrypt.hash(
+    data.password as string,
+    config.bcrypt_salt_rounds,
+  );
+  data.password = hashedPassword;
 
   return await prisma.user.update({ where: { id: userId }, data });
 };
 
 export const userServices = {
   register,
-  resendOTP,
-  verifyOtp,
+  resendRegisterOTP,
+  verifyForgetPasswordOtp,
   resetPassword,
   requestPasswordReset,
-  updateUserProfile
+  updateUserProfile,
+  verifyRegisterOtp
 };

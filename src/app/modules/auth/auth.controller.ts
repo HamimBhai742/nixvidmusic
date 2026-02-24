@@ -28,17 +28,17 @@ const verifyOTP = catchAsyncFn(async (req: Request, res: Response) => {
   });
 });
 
-const verifyAccount = catchAsyncFn(async (req: Request, res: Response) => {
-  const { email, otp } = req.body;
-  const user = await authService.verifyAccount(email, otp);
+const resendLoginOTP= catchAsyncFn(async (req: Request, res: Response) => {
+  const result = await authService.resendLoginOTP(req.body.email);
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "You have successfully Sign Up",
-    data: user,
+    message: result.message as string,
+    data: null,
   });
-});
+})
+
 
 const changePassword = catchAsyncFn(
   async (req: Request & { user?: IJwtPayload }, res: Response) => {
@@ -61,7 +61,7 @@ const changePassword = catchAsyncFn(
 
 export const authController = {
   verifyOTP,
-  verifyAccount,
   login,
   changePassword,
+  resendLoginOTP
 };

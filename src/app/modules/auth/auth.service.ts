@@ -7,7 +7,7 @@ import { loginOtpTemplate } from "../../utils/emailTemplates/loginOtpTemplate";
 import { generateOTP } from "../../utils/generateOTP";
 import config from "../../../config";
 import { otpQueueEmail } from "../../bullMQ/init";
-import { UserRoleEnum } from "@prisma/client";
+import { Role } from "../../interface/user.interface";
 
 const login = async (payload: any) => {
   const { email, password } = payload;
@@ -25,7 +25,7 @@ const login = async (payload: any) => {
     throw new AppError(httpStatus.BAD_REQUEST, "Password incorrect");
   }
 
-  if (userData.role === UserRoleEnum.USER) {
+  if (userData.role === Role.USER) {
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 2 * 60 * 1000);
 
@@ -39,11 +39,19 @@ const login = async (payload: any) => {
       },
     });
 
-    await loginOtpTemplate(
-      userData.name,
-      "Your Verification OTP",
-      userData.email,
-      otp,
+    await otpQueueEmail.add(
+      "loginOtp",
+      {
+        userName: userData.name,
+        email: userData.email,
+        otpCode: otp,
+      },
+      {
+        jobId: `${userData.id}-${Date.now()}`,
+        removeOnComplete: true,
+        attempts: 3,
+        backoff: { type: "fixed", delay: 5000 },
+      },
     );
 
     return {
@@ -59,7 +67,50 @@ const login = async (payload: any) => {
     name: userData.name,
     email: userData.email,
     accessToken,
-    message: "Login successful"
+    message: "Login successful",
+  };
+};
+
+const resendLoginOTP = async (email: string) => {
+  const user = await prisma.user.findFirst({
+    where: { email },
+  });
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const otp = generateOTP();
+  const otpExpiry = new Date(Date.now() + 2 * 60 * 1000);
+
+  await prisma.user.update({
+    where: {
+      email,
+    },
+    data: {
+      otp,
+      otpExpiry,
+    },
+  });
+
+  await otpQueueEmail.add(
+    "loginOtp",
+    {
+      userName: user.name,
+      email: user.email,
+      otpCode: otp,
+    },
+    {
+      jobId: `${user.id}-${Date.now()}`,
+      removeOnComplete: true,
+      attempts: 3,
+      backoff: { type: "fixed", delay: 5000 },
+    },
+  );
+
+  return {
+    email: user.email,
+    message:
+      "Verification OTP sent to your email. Please verify to activate account.",
   };
 };
 
@@ -80,32 +131,6 @@ const verifyOTP = async (email: string, otp: string) => {
   await prisma.user.update({
     where: { id: user.id },
     data: { otp: null, otpExpiry: null },
-  });
-
-  return {
-    name: user.name,
-    email: user.email,
-    accessToken,
-  };
-};
-
-const verifyAccount = async (email: string, otp: string) => {
-  const user = await prisma.user.findFirst({ where: { email } });
-  if (!user || user.otp !== otp) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Invalid OTP");
-  }
-
-  if (user.otpExpiry && user.otpExpiry < new Date()) {
-    throw new AppError(httpStatus.BAD_REQUEST, "OTP expired");
-  }
-
-  // ✅ Generate access token
-  const accessToken = await generateToken(user);
-
-  // ✅ Clear OTP fields
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { otp: null, otpExpiry: null, isEmailVerified: true },
   });
 
   return {
@@ -167,7 +192,7 @@ const changePassword = async (
 
 export const authService = {
   verifyOTP,
-  verifyAccount,
   login,
   changePassword,
+  resendLoginOTP
 };

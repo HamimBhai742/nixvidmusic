@@ -1,11 +1,12 @@
-import { Prisma } from "@prisma/client";
+
 import httpStatus from "http-status";
 import { prisma } from "../../utils/prisma";
 import { otpQueueEmail } from "../../bullMQ/init";
 import { AppError } from "../../error/AppError";
+import { ISupportTicket } from "../../interface/support.interface";
 
 const createSupportTicket = async (
-  payload: Prisma.SupportTicketCreateInput,
+  payload: ISupportTicket,
 ) => {
   const { name, email, message, category, subject } = payload;
   const ticket = await prisma.supportTicket.create({
@@ -40,7 +41,7 @@ const createSupportTicket = async (
 
 const closedSupportTicket = async (
   ticketId: string,
-  payload: Partial<Prisma.SupportTicketUpdateInput>,
+  payload: Partial<ISupportTicket>,
 ) => {
   const ticket = await prisma.supportTicket.update({
     where: {

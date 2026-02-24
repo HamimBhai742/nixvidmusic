@@ -1,9 +1,6 @@
-import { redis, redisOptions } from "../../lib/redis/redisOptions";
+import {  redisOptions } from "../../lib/redis/redisOptions";
 import { Worker } from "bullmq";
-
-import { emailTemplate } from "../../utils/emailTemplates/forgetPasswordOtpTemplate";
 import { twoFactorOtpTemplate } from "../../utils/emailTemplates/twoFactorOtpTemplate";
-// import { registrationOtpTemplate } from "../../utils/emailTemplates/registrationOtpTemplate";
 import { passwordChangedTemplate } from "../../utils/emailTemplates/passwordChangedTemplate";
 import { passwordResetTemplate } from "../../utils/emailTemplates/passwordResetTemplate";
 import { parentApprovalOtpTemplate } from "../../utils/emailTemplates/parentApprovalOtpTemplate";
@@ -13,6 +10,7 @@ import { supportAdminTemplate } from "../../utils/emailTemplates/adminSupportTem
 import { supportAutoReplyTemplate } from "../../utils/emailTemplates/userAutoReplyTemplate";
 import { supportClosedTemplate } from "../../utils/emailTemplates/supportTicketClosedTemplate";
 import { loginOtpTemplate } from "../../utils/emailTemplates/loginOtpTemplate";
+import { forgetPasswordOtpTemplate } from "../../utils/emailTemplates/forgetPasswordOtpTemplate";
 
 export const otpEmailWorker = new Worker(
   "otp-queue-email",
@@ -20,7 +18,7 @@ export const otpEmailWorker = new Worker(
     switch (job.name) {
       case "forgetPasswordOtp": {
         const { userName, email, otpCode, subject } = job.data;
-        await emailTemplate.forgetPasswordOtpTemplate(
+        await forgetPasswordOtpTemplate(
           userName,
           subject,
           email,

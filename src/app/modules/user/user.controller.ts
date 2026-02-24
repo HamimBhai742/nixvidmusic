@@ -49,7 +49,7 @@ const requestPasswordReset = catchAsyncFn(
       success: true,
       statusCode: httpStatus.OK,
       message: result.message,
-      data: null,
+      data: result.tempToken,
     });
   },
 );
@@ -65,7 +65,7 @@ const verifyForgetPasswordOtp = catchAsyncFn(async (req: Request, res: Response)
     success: true,
     statusCode: httpStatus.OK,
     message: result.message,
-    data: null,
+    data: result.tempToken,
   });
 });
 

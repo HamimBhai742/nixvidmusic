@@ -50,7 +50,7 @@ const login = async (payload: any) => {
       {
         jobId: `${userData.id}-${Date.now()}`,
         removeOnComplete: true,
-        attempts: 3,
+        attempts: 5,
         backoff: { type: "fixed", delay: 5000 },
       },
     );

@@ -12,7 +12,7 @@ const login = catchAsyncFn(async (req: Request, res: Response) => {
     success: true,
     statusCode: httpStatus.OK,
     message: result.message as string,
-    data: result.email,
+    data: result.data
   });
 });
 
@@ -38,7 +38,6 @@ const resendLoginOTP= catchAsyncFn(async (req: Request, res: Response) => {
     data: null,
   });
 })
-
 
 const changePassword = catchAsyncFn(
   async (req: Request & { user?: IJwtPayload }, res: Response) => {

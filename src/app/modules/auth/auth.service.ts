@@ -45,7 +45,7 @@ const login = async (payload: any) => {
         userName: userData.name,
         email: userData.email,
         otpCode: otp,
-        subject: "Your Verification OTP"
+        subject: "Your Verification OTP",
       },
       {
         jobId: `${userData.id}-${Date.now()}`,
@@ -56,7 +56,9 @@ const login = async (payload: any) => {
     );
 
     return {
-      email: userData.email,
+      data: {
+        email: userData.email
+      },
       message: "Verification OTP sent to your email. Please verify to Signin.",
     };
   }
@@ -65,9 +67,11 @@ const login = async (payload: any) => {
   const accessToken = await generateToken(userData);
 
   return {
-    name: userData.name,
-    email: userData.email,
-    accessToken,
+    data: {
+      name: userData.name,
+      email: userData.email,
+      accessToken,
+    },
     message: "Login successful",
   };
 };
@@ -99,7 +103,7 @@ const resendLoginOTP = async (email: string) => {
       userName: user.name,
       email: user.email,
       otpCode: otp,
-      subject: "Your Verification OTP"
+      subject: "Your Verification OTP",
     },
     {
       jobId: `${user.id}-${Date.now()}`,
@@ -196,5 +200,5 @@ export const authService = {
   verifyOTP,
   login,
   changePassword,
-  resendLoginOTP
+  resendLoginOTP,
 };

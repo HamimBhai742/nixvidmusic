@@ -57,7 +57,7 @@ const login = async (payload: any) => {
 
     return {
       data: {
-        email: userData.email
+        email: userData.email,
       },
       message: "Verification OTP sent to your email. Please verify to Signin.",
     };
@@ -196,9 +196,22 @@ const changePassword = async (
   };
 };
 
+const getMe = async (email: string) => {
+  const user = await prisma.user.findFirst({ where: { email } });
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+  return {
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  };
+};
+
 export const authService = {
   verifyOTP,
   login,
   changePassword,
   resendLoginOTP,
+  getMe
 };

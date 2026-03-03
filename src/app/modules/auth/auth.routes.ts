@@ -28,4 +28,6 @@ router.post(
 
 router.post("/resend-login-otp", authController.resendLoginOTP);
 
+router.get("/me", checkAuth(), authController.getMe);
+
 export const authRoutes = router;

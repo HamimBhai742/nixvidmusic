@@ -58,9 +58,23 @@ const changePassword = catchAsyncFn(
   },
 );
 
+const getMe = catchAsyncFn(
+  async (req: Request & { user?: IJwtPayload }, res: Response) => {
+    const user = await authService.getMe(req.user?.email as string);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "User details fetched successfully",
+      data: user,
+    });
+  },
+);
+
 export const authController = {
   verifyOTP,
   login,
   changePassword,
-  resendLoginOTP
+  resendLoginOTP,
+  getMe
 };

@@ -12,7 +12,7 @@ const login = catchAsyncFn(async (req: Request, res: Response) => {
     success: true,
     statusCode: httpStatus.OK,
     message: result.message as string,
-    data: result.data
+    data: result.data,
   });
 });
 
@@ -28,7 +28,7 @@ const verifyOTP = catchAsyncFn(async (req: Request, res: Response) => {
   });
 });
 
-const resendLoginOTP= catchAsyncFn(async (req: Request, res: Response) => {
+const resendLoginOTP = catchAsyncFn(async (req: Request, res: Response) => {
   const result = await authService.resendLoginOTP(req.body.email);
 
   sendResponse(res, {
@@ -37,7 +37,7 @@ const resendLoginOTP= catchAsyncFn(async (req: Request, res: Response) => {
     message: result.message as string,
     data: null,
   });
-})
+});
 
 const changePassword = catchAsyncFn(
   async (req: Request & { user?: IJwtPayload }, res: Response) => {
@@ -76,5 +76,5 @@ export const authController = {
   login,
   changePassword,
   resendLoginOTP,
-  getMe
+  getMe,
 };

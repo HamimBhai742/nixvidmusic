@@ -38,11 +38,13 @@ router.post(
   validateRequest(resetPasswordSchema),
   userController.resetPassword,
 );
-router.post(
+
+router.put(
   "/update-profile",
   checkAuth(Role.USER),
   userController.updateUserProfile,
 );
+
 router.post("/resend-register-otp", userController.resendRegisterOTP);
 
 export const userRoutes = router;

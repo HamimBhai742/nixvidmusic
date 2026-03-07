@@ -1,15 +1,14 @@
 import { AppError } from "../../error/AppError";
-import { generateToken } from "../../utils/generateToken";
+import { createNewAccessToken, generateToken } from "../../utils/generateToken";
 import { prisma } from "../../utils/prisma";
 import httpStatus from "http-status";
 import bcrypt from "bcryptjs";
-import { loginOtpTemplate } from "../../utils/emailTemplates/loginOtpTemplate";
-import { generateOTP } from "../../utils/generateOTP";
 import config from "../../../config";
 import { otpQueueEmail } from "../../bullMQ/init";
 import { Role } from "../../interface/user.interface";
+import { generateOtp } from "../../utils/generateOTP";
 
-const login = async (payload: any) => {
+const login = async (payload: { email: string; password: string }) => {
   const { email, password } = payload;
   const userData = await prisma.user.findFirst({ where: { email } });
   if (!userData) {
@@ -26,8 +25,8 @@ const login = async (payload: any) => {
   }
 
   if (userData.role === Role.USER) {
-    const otp = generateOTP();
-    const otpExpiry = new Date(Date.now() + 2 * 60 * 1000);
+    const otp = generateOtp(5);
+    const otpExpiry = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
 
     await prisma.user.update({
       where: {
@@ -76,6 +75,33 @@ const login = async (payload: any) => {
   };
 };
 
+const googleLogin = async (payload: {
+  email: string;
+  name?: string;
+  image: string;
+}) => {
+  const { email, name, image } = payload;
+  let userData = await prisma.user.findFirst({ where: { email } });
+  if (!userData) {
+    userData = await prisma.user.create({
+      data: {
+        email,
+        name,
+        image,
+        role: Role.USER,
+        isEmailVerified: true,
+      },
+    });
+  }
+  const generateTokenData = await generateToken(userData);
+
+  return {
+    name: userData.name,
+    email: userData.email,
+    token: generateTokenData,
+  };
+};
+
 const resendLoginOTP = async (email: string) => {
   const user = await prisma.user.findFirst({
     where: { email },
@@ -84,8 +110,8 @@ const resendLoginOTP = async (email: string) => {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  const otp = generateOTP();
-  const otpExpiry = new Date(Date.now() + 2 * 60 * 1000);
+  const otp = generateOtp(5);
+  const otpExpiry = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
 
   await prisma.user.update({
     where: {
@@ -131,7 +157,7 @@ const verifyOTP = async (email: string, otp: string) => {
   }
 
   // ✅ Generate access token
-  const accessToken = await generateToken(user);
+  const token = await generateToken(user);
 
   // ✅ Clear OTP fields
   await prisma.user.update({
@@ -142,8 +168,13 @@ const verifyOTP = async (email: string, otp: string) => {
   return {
     name: user.name,
     email: user.email,
-    accessToken,
+    token,
   };
+};
+
+const getNewAccessToken = async (refreshToken: string) => {
+  const token = createNewAccessToken(refreshToken);
+  return token;
 };
 
 const changePassword = async (
@@ -208,12 +239,12 @@ const getMe = async (email: string) => {
   };
 };
 
-
-
 export const authService = {
   verifyOTP,
   login,
   changePassword,
   resendLoginOTP,
-  getMe
+  getMe,
+  getNewAccessToken,
+  googleLogin,
 };

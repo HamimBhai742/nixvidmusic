@@ -16,6 +16,17 @@ const login = catchAsyncFn(async (req: Request, res: Response) => {
   });
 });
 
+const googleLogin = catchAsyncFn(async (req: Request, res: Response) => {
+  const result = await authService.googleLogin(req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "You have successfully Sign in",
+    data: result,
+  });
+});
+
 const verifyOTP = catchAsyncFn(async (req: Request, res: Response) => {
   const { email, otp } = req.body;
   const user = await authService.verifyOTP(email, otp);
@@ -36,6 +47,19 @@ const resendLoginOTP = catchAsyncFn(async (req: Request, res: Response) => {
     statusCode: httpStatus.OK,
     message: result.message as string,
     data: null,
+  });
+});
+
+const getNewAccessToken = catchAsyncFn(async (req: Request, res: Response) => {
+  const accessToken = await authService.getNewAccessToken(
+    req.body.refreshToken,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "New access token generated successfully",
+    data: accessToken,
   });
 });
 
@@ -77,4 +101,6 @@ export const authController = {
   changePassword,
   resendLoginOTP,
   getMe,
+  getNewAccessToken,
+  googleLogin,
 };

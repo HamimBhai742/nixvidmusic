@@ -13,11 +13,15 @@ const router = Router();
 
 router.post("/sign-in", validateRequest(authZodSchema), authController.login);
 
+router.post("/google-login", authController.googleLogin);
+
 router.post(
   "/verify-otp",
   validateRequest(verifyOtpSchema),
   authController.verifyOTP,
 );
+
+router.post("/refresh-token", authController.getNewAccessToken);
 
 router.post(
   "/change-password",

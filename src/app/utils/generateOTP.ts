@@ -1,4 +1,6 @@
 
-export const generateOTP = (): string => {
-  return Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
+export const generateOtp = (length: number = 4): string => {
+  const min = Math.pow(10, length - 1); // 1000
+  const max = Math.pow(10, length) - 1; // 9999
+  return Math.floor(Math.random() * (max - min + 1) + min).toString();
 };

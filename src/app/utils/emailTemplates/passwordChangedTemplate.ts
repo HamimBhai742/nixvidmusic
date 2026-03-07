@@ -105,7 +105,7 @@ export const passwordChangedTemplate = async (userName: string, subject: string,
                     <!-- Header -->
                     <div class="email-header">
                         <div class="company-logo">
-                            <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Accord Technology" />
+                            <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Akkord AI" />
                         </div>
                     </div>
 
@@ -114,7 +114,7 @@ export const passwordChangedTemplate = async (userName: string, subject: string,
                         <p class="greeting">Hello ${userName},</p>
 
                         <p class="main-text">
-                            This is a confirmation that your <strong>Accord Technology</strong> account password
+                            This is a confirmation that your <strong>Akkord AI</strong> account password
                             was successfully changed.
                         </p>
 
@@ -140,7 +140,7 @@ export const passwordChangedTemplate = async (userName: string, subject: string,
                     <!-- Footer -->
                     <div class="footer">
                         Regards,<br />
-                        Team <strong>Accord Technology</strong>
+                        Team <strong>Akkord AI</strong>
                     </div>
                 </div>
             </td>

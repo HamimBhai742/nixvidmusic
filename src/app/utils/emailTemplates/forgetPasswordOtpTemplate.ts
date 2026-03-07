@@ -1,7 +1,12 @@
 import sendEmail from "./nodemailerTransport";
 
-export const forgetPasswordOtpTemplate = async (userName: string, subject: string, email: string, otp: string) => {
-    const html = `
+export const forgetPasswordOtpTemplate = async (
+  userName: string,
+  subject: string,
+  email: string,
+  otp: string,
+) => {
+  const html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -106,14 +111,14 @@ export const forgetPasswordOtpTemplate = async (userName: string, subject: strin
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Accord Technology Logo">
-            <h1>Accord Technology</h1>
+            <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Akkord AI Logo">
+            <h1>Akkord AI</h1>
         </div>
 
         <!-- Content -->
         <div class="content">
             <p class="greeting">Hello ${userName},</p>
-            <p>We received a request to reset the password for your account. Use the OTP below to complete the process. <strong>Do not share this code with anyone.</strong></p>
+            <p>We received a request to reset the password for your account. Use the OTP below to complete the process. <strong>Do not share this code with anyone.</strong> </p>
 
             <!-- OTP Section -->
             <div class="otp-section">
@@ -122,17 +127,16 @@ export const forgetPasswordOtpTemplate = async (userName: string, subject: strin
 
             <p>If you did not request this, you can safely ignore this email.</p>
 
-            <a href="#" class="cta-button">Reset Password</a>
         </div>
 
         <!-- Footer -->
         <div class="footer">
-            <p>Regards,<br>Team <strong>Accord Technology</strong></p>
-            <p><a href="#">www.accordtechnology.com</a></p>
+            <p>Regards,<br>Team <strong>Akkord AI</strong></p>
+            <p><a href="#">www.akkord.ai</a></p>
         </div>
     </div>
 </body>
 </html>
 `;
-    await sendEmail(email, subject, html);
+  await sendEmail(email, subject, html);
 };

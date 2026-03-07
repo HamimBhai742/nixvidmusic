@@ -119,7 +119,7 @@ export const loginOtpTemplate = async (
           <!-- Header -->
           <div class="email-header">
             <div class="company-logo">
-              <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Accord Technology" />
+              <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Akkord AI" />
             </div>
           </div>
 
@@ -128,7 +128,7 @@ export const loginOtpTemplate = async (
             <p class="greeting">Hello ${userName},</p>
 
             <p class="main-text">
-              We received a request to log in to your <strong>ACCORD TECHNOLOGY</strong> account.
+              We received a request to log in to your <strong>Akkord AI</strong> account.
               Please use the verification code below to complete your login.
             </p>
 
@@ -146,7 +146,7 @@ export const loginOtpTemplate = async (
           <!-- Footer -->
           <div class="footer">
             Regards,<br />
-            Team <strong>ACCORD TECHNOLOGY</strong>
+            Team <strong>Akkord AI</strong>
           </div>
 
         </div>

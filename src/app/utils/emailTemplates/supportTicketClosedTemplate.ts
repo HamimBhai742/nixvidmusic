@@ -30,6 +30,8 @@ export const supportClosedTemplate = async (
       <p style="margin-top:30px;">
         Regards,<br/>
         <strong>Support Team</strong>
+        <br/>
+        <strong>Akkord AI</strong>
       </p>
     </div>
   </div>

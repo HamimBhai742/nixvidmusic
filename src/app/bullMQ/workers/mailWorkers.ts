@@ -3,7 +3,6 @@ import { Worker } from "bullmq";
 import { twoFactorOtpTemplate } from "../../utils/emailTemplates/twoFactorOtpTemplate";
 import { passwordChangedTemplate } from "../../utils/emailTemplates/passwordChangedTemplate";
 import { passwordResetTemplate } from "../../utils/emailTemplates/passwordResetTemplate";
-import { parentApprovalOtpTemplate } from "../../utils/emailTemplates/parentApprovalOtpTemplate";
 import { registrationOtpTemplate } from "../../utils/emailTemplates/registrationOtpTemplate";
 import { passwordResetSuccessTemplate } from "../../utils/emailTemplates/passwordResetSuccessTemplate";
 import { supportAdminTemplate } from "../../utils/emailTemplates/adminSupportTemplate";
@@ -51,11 +50,6 @@ export const otpEmailWorker = new Worker(
       case "passwordResetRequest": {
         const { userName, email, subject, otpCode } = job.data;
         await passwordResetTemplate(userName, subject, email, otpCode);
-        return "Otp end job completed";
-      }
-      case "parentApprovalOtp": {
-        const { userName, email, subject, otpCode } = job.data;
-        await parentApprovalOtpTemplate(userName, subject, email, otpCode);
         return "Otp end job completed";
       }
       case "resetPasswordSuccess": {

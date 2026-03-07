@@ -115,7 +115,7 @@ export const registrationOtpTemplate = async (userName: string, subject: string,
           <!-- Header -->
           <div class="email-header">
             <div class="company-logo">
-              <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Accord Technology" />
+              <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Akkord AI" />
             </div>
           </div>
 
@@ -124,7 +124,7 @@ export const registrationOtpTemplate = async (userName: string, subject: string,
             <p class="greeting">Welcome ${userName},</p>
 
             <p class="main-text">
-              Thank you for creating an account with <strong>Accord Technology</strong>.
+              Thank you for creating an account with <strong>Akkord AI</strong>.
               To complete your registration, please verify your email address using the code below.
             </p>
 
@@ -142,7 +142,7 @@ export const registrationOtpTemplate = async (userName: string, subject: string,
           <!-- Footer -->
           <div class="footer">
             Regards,<br />
-            Team <strong>Accord Technology</strong>
+            Team <strong>Akkord AI</strong>
           </div>
         </div>
       </td>

@@ -273,7 +273,7 @@ const resetPassword = async (
     {
       userName: user.name,
       email: user.email,
-      subject: "Password Changed Successfully",
+      subject: "Password reset successfully",
       secureLink: `${config.client_url}/secure-account`,
     },
     {

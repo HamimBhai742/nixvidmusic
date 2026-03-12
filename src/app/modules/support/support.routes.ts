@@ -12,4 +12,10 @@ router.post(
   supportController.closedSupportTicket,
 );
 
+router.get(
+  "/all-tickets",
+  checkAuth(Role.ADMIN),
+  supportController.getAllSupportTicket,
+);
+
 export const supportRoutes = router;

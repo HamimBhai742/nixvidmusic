@@ -23,7 +23,6 @@ export default {
   emailSender:{
     email:process.env.EMAIL_SENDER_EMAIL,
     pass:process.env.EMAIL_SENDER_PASS
-    
   },
   smtp:{
     host:process.env.SMTP_HOST as string,

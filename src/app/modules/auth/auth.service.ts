@@ -236,6 +236,9 @@ const getMe = async (email: string) => {
     name: user.name,
     email: user.email,
     role: user.role,
+    image: user.image,
+    status: user.status,
+    isEmailVerified: user.isEmailVerified,
   };
 };
 

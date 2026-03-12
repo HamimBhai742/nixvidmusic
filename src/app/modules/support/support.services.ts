@@ -1,13 +1,10 @@
-
 import httpStatus from "http-status";
 import { prisma } from "../../utils/prisma";
 import { otpQueueEmail } from "../../bullMQ/init";
 import { AppError } from "../../error/AppError";
 import { ISupportTicket } from "../../interface/support.interface";
 
-const createSupportTicket = async (
-  payload: ISupportTicket,
-) => {
+const createSupportTicket = async (payload: ISupportTicket) => {
   const { name, email, message, category, subject } = payload;
   const ticket = await prisma.supportTicket.create({
     data: {
@@ -52,11 +49,9 @@ const closedSupportTicket = async (
     },
   });
 
-  if (!ticket)
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "Failed to update support ticket",
-    );
+  //when ticket is closed after delete the ticket
+
+  await prisma.supportTicket.delete({ where: { id: ticketId } }); 
 
   await otpQueueEmail.add("supportTicketClosed", {
     userEmail: ticket.email,
@@ -68,7 +63,13 @@ const closedSupportTicket = async (
   };
 };
 
+const getAllSupportTickets = async () => {
+  const tickets = await prisma.supportTicket.findMany();
+  return tickets;
+};
+
 export const supportService = {
   createSupportTicket,
   closedSupportTicket,
+  getAllSupportTickets,
 };

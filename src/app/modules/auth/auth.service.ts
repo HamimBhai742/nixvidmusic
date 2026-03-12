@@ -201,6 +201,17 @@ const changePassword = async (
     newPassword,
     config.bcrypt_salt_rounds,
   );
+
+  // check if the new password is the same as the old password
+
+  const isSamePassword = await bcrypt.compare(newPassword, user.password ?? "");
+  if (isSamePassword) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "New password cannot be the same as the old password",
+    );
+  }
+
   await prisma.user.update({
     where: { email },
     data: { password: hashedPassword },

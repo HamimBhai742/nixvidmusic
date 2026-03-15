@@ -22,7 +22,7 @@ const register = async (payload: UserPayload) => {
     config.bcrypt_salt_rounds,
   );
 
-  const otp = generateOtp(5);
+  const otp = generateOtp(6);
   const otpExpiry = new Date(Date.now() + 2 * 60 * 1000);
   const userData = {
     ...payload,
@@ -105,7 +105,7 @@ const resendRegisterOTP = async (email: string) => {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  const otp = generateOtp(5);
+  const otp = generateOtp(6);
   const otpExpiry = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
 
   await prisma.user.update({
@@ -148,13 +148,13 @@ const requestPasswordReset = async (email: string) => {
   if (!user)
     throw new AppError(httpStatus.NOT_FOUND, "No user found with this email");
 
-  const otp = generateOtp(5);
-  const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+  const otp = generateOtp(6);
+  const otpExpiry = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
 
   const tempToken = await generateForgetToken(
     { id: user.id, name: user.name, email: user.email, role: user.role },
     config.jwt.access_secret as Secret,
-    "5m",
+    "2m",
   );
 
   await prisma.user.update({
@@ -212,7 +212,7 @@ const verifyForgetPasswordOtp = async (
   const newTempToken = await generateForgetToken(
     { id: user.id, name: user.name, email: user.email, role: user.role },
     config.jwt.access_secret as Secret,
-    "5m",
+    "2m",
   );
 
   // ✅ Update user with new token and expiry

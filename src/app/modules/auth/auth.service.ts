@@ -26,7 +26,7 @@ const login = async (payload: { email: string; password: string }) => {
   }
 
   if (userData.role === Role.USER) {
-    const otp = generateOtp(5);
+    const otp = generateOtp(6);
     const otpExpiry = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
 
     await prisma.user.update({
@@ -112,7 +112,7 @@ const resendLoginOTP = async (email: string) => {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  const otp = generateOtp(5);
+  const otp = generateOtp(6);
   const otpExpiry = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
 
   await prisma.user.update({

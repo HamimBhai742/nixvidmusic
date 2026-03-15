@@ -52,7 +52,7 @@ const login = async (payload: { email: string; password: string }) => {
         removeOnComplete: true,
         attempts: 5,
         backoff: { type: "fixed", delay: 5000 },
-      }
+      },
     );
 
     return {
@@ -91,6 +91,7 @@ const googleLogin = async (token: string) => {
         firebaseUid,
         role: Role.USER,
         isEmailVerified: true,
+        status: "ACTIVE",
       },
     });
   }

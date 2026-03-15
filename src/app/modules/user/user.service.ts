@@ -83,6 +83,8 @@ const verifyRegisterOtp = async (email: string, otp: string) => {
     data: {
       otp: null,
       otpExpiry: null,
+      isEmailVerified: true,
+      status: "ACTIVE",
     },
   });
 
@@ -165,7 +167,7 @@ const requestPasswordReset = async (email: string) => {
     },
   });
 
-   await otpQueueEmail.add(
+  await otpQueueEmail.add(
     "forgetPasswordOtp",
     {
       userName: user.name,
@@ -288,7 +290,10 @@ const resetPassword = async (
   return { message: "Password reset successfully" };
 };
 
-const updateUserProfile = async (userId: string, data: Partial<Prisma.UserCreateInput>) => {
+const updateUserProfile = async (
+  userId: string,
+  data: Partial<Prisma.UserCreateInput>,
+) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new AppError(httpStatus.NOT_FOUND, "User not found");
 

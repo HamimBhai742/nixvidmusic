@@ -1,21 +1,18 @@
-
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
 import path from "path";
-import httpStatus from 'http-status'
+import httpStatus from "http-status";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import router from "./app/routes";
 import { stripeWebhook } from "./app/modules/stripe/stripeWebhook";
+import { cronJob } from "./app/utils/cronJob";
 
 const app: Application = express();
 app.use(
   cors({
-    origin: [
-      "http://localhost:3001",
-      "http://localhost:3000",
-    ],
+    origin: ["http://localhost:3001", "http://localhost:3000"],
     credentials: true,
-  })
+  }),
 );
 
 //parser
@@ -24,11 +21,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(process.cwd(), "public")));
 
 app.get("/", (req: Request, res: Response) => {
-  res.send('Dxvid Music server is running.........');
+  res.send("Dxvid Music server is running.........");
 });
 
 app.use("/api/v1", router);
-app.use("/api/v1/webhook", express.raw({ type: "application/json" }), stripeWebhook);
+app.use(
+  "/api/v1/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebhook,
+);
 app.use(globalErrorHandler);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -41,5 +42,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     },
   });
 });
+
+cronJob();
 
 export default app;

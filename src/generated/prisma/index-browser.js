@@ -130,13 +130,7 @@ exports.Prisma.UserScalarFieldEnum = {
   birthday: 'birthday',
   age: 'age',
   number: 'number',
-  parentName: 'parentName',
   relation: 'relation',
-  parentNumber: 'parentNumber',
-  parentEmail: 'parentEmail',
-  parentOTP: 'parentOTP',
-  parentOTPExpiry: 'parentOTPExpiry',
-  isParentEmailVerified: 'isParentEmailVerified',
   address: 'address',
   skill: 'skill',
   forgetPasswordToken: 'forgetPasswordToken',
@@ -210,7 +204,8 @@ exports.UserRoleEnum = exports.$Enums.UserRoleEnum = {
 exports.UserStatus = exports.$Enums.UserStatus = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
-  BLOCKED: 'BLOCKED'
+  BLOCKED: 'BLOCKED',
+  PENDING: 'PENDING'
 };
 
 exports.Gender = exports.$Enums.Gender = {

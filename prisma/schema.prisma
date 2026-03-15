@@ -15,7 +15,7 @@ model User {
   email                      String       @unique
   password                   String?
   role                       UserRoleEnum @default(USER)
-  status                     UserStatus   @default(ACTIVE)
+  status                     UserStatus   @default(PENDING)
   image                      String?
   otp                        String?
   otpExpiry                  DateTime?
@@ -25,13 +25,7 @@ model User {
   birthday                   String?
   age                        Int?
   number                     String?
-  parentName                 String?
   relation                   String?
-  parentNumber               String?
-  parentEmail                String?
-  parentOTP                  String?
-  parentOTPExpiry            DateTime?
-  isParentEmailVerified      Boolean      @default(true)
   address                    Json?
   skill                      String?
   forgetPasswordToken        String?
@@ -45,7 +39,6 @@ model User {
   updatedAt                  DateTime     @updatedAt
 
   subscriptions UserSubscription[]
-
   @@map("users")
 }
 
@@ -145,4 +138,5 @@ enum UserStatus {
   ACTIVE
   INACTIVE
   BLOCKED
+  PENDING
 }

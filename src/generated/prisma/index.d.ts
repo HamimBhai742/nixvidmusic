@@ -99,7 +99,8 @@ export type SupportCategory = (typeof SupportCategory)[keyof typeof SupportCateg
 export const UserStatus: {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
-  BLOCKED: 'BLOCKED'
+  BLOCKED: 'BLOCKED',
+  PENDING: 'PENDING'
 };
 
 export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
@@ -1281,13 +1282,7 @@ export namespace Prisma {
     birthday: string | null
     age: number | null
     number: string | null
-    parentName: string | null
     relation: string | null
-    parentNumber: string | null
-    parentEmail: string | null
-    parentOTP: string | null
-    parentOTPExpiry: Date | null
-    isParentEmailVerified: boolean | null
     skill: string | null
     forgetPasswordToken: string | null
     forgetPasswordTokenExpires: Date | null
@@ -1316,13 +1311,7 @@ export namespace Prisma {
     birthday: string | null
     age: number | null
     number: string | null
-    parentName: string | null
     relation: string | null
-    parentNumber: string | null
-    parentEmail: string | null
-    parentOTP: string | null
-    parentOTPExpiry: Date | null
-    isParentEmailVerified: boolean | null
     skill: string | null
     forgetPasswordToken: string | null
     forgetPasswordTokenExpires: Date | null
@@ -1351,13 +1340,7 @@ export namespace Prisma {
     birthday: number
     age: number
     number: number
-    parentName: number
     relation: number
-    parentNumber: number
-    parentEmail: number
-    parentOTP: number
-    parentOTPExpiry: number
-    isParentEmailVerified: number
     address: number
     skill: number
     forgetPasswordToken: number
@@ -1397,13 +1380,7 @@ export namespace Prisma {
     birthday?: true
     age?: true
     number?: true
-    parentName?: true
     relation?: true
-    parentNumber?: true
-    parentEmail?: true
-    parentOTP?: true
-    parentOTPExpiry?: true
-    isParentEmailVerified?: true
     skill?: true
     forgetPasswordToken?: true
     forgetPasswordTokenExpires?: true
@@ -1432,13 +1409,7 @@ export namespace Prisma {
     birthday?: true
     age?: true
     number?: true
-    parentName?: true
     relation?: true
-    parentNumber?: true
-    parentEmail?: true
-    parentOTP?: true
-    parentOTPExpiry?: true
-    isParentEmailVerified?: true
     skill?: true
     forgetPasswordToken?: true
     forgetPasswordTokenExpires?: true
@@ -1467,13 +1438,7 @@ export namespace Prisma {
     birthday?: true
     age?: true
     number?: true
-    parentName?: true
     relation?: true
-    parentNumber?: true
-    parentEmail?: true
-    parentOTP?: true
-    parentOTPExpiry?: true
-    isParentEmailVerified?: true
     address?: true
     skill?: true
     forgetPasswordToken?: true
@@ -1590,13 +1555,7 @@ export namespace Prisma {
     birthday: string | null
     age: number | null
     number: string | null
-    parentName: string | null
     relation: string | null
-    parentNumber: string | null
-    parentEmail: string | null
-    parentOTP: string | null
-    parentOTPExpiry: Date | null
-    isParentEmailVerified: boolean
     address: JsonValue | null
     skill: string | null
     forgetPasswordToken: string | null
@@ -1645,13 +1604,7 @@ export namespace Prisma {
     birthday?: boolean
     age?: boolean
     number?: boolean
-    parentName?: boolean
     relation?: boolean
-    parentNumber?: boolean
-    parentEmail?: boolean
-    parentOTP?: boolean
-    parentOTPExpiry?: boolean
-    isParentEmailVerified?: boolean
     address?: boolean
     skill?: boolean
     forgetPasswordToken?: boolean
@@ -1685,13 +1638,7 @@ export namespace Prisma {
     birthday?: boolean
     age?: boolean
     number?: boolean
-    parentName?: boolean
     relation?: boolean
-    parentNumber?: boolean
-    parentEmail?: boolean
-    parentOTP?: boolean
-    parentOTPExpiry?: boolean
-    isParentEmailVerified?: boolean
     address?: boolean
     skill?: boolean
     forgetPasswordToken?: boolean
@@ -1705,7 +1652,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "role" | "status" | "image" | "otp" | "otpExpiry" | "notification" | "fcmToken" | "firebaseUid" | "birthday" | "age" | "number" | "parentName" | "relation" | "parentNumber" | "parentEmail" | "parentOTP" | "parentOTPExpiry" | "isParentEmailVerified" | "address" | "skill" | "forgetPasswordToken" | "forgetPasswordTokenExpires" | "goal" | "focus" | "isEmailVerified" | "language" | "gender" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "role" | "status" | "image" | "otp" | "otpExpiry" | "notification" | "fcmToken" | "firebaseUid" | "birthday" | "age" | "number" | "relation" | "address" | "skill" | "forgetPasswordToken" | "forgetPasswordTokenExpires" | "goal" | "focus" | "isEmailVerified" | "language" | "gender" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     subscriptions?: boolean | User$subscriptionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1732,13 +1679,7 @@ export namespace Prisma {
       birthday: string | null
       age: number | null
       number: string | null
-      parentName: string | null
       relation: string | null
-      parentNumber: string | null
-      parentEmail: string | null
-      parentOTP: string | null
-      parentOTPExpiry: Date | null
-      isParentEmailVerified: boolean
       address: Prisma.JsonValue | null
       skill: string | null
       forgetPasswordToken: string | null
@@ -2158,13 +2099,7 @@ export namespace Prisma {
     readonly birthday: FieldRef<"User", 'String'>
     readonly age: FieldRef<"User", 'Int'>
     readonly number: FieldRef<"User", 'String'>
-    readonly parentName: FieldRef<"User", 'String'>
     readonly relation: FieldRef<"User", 'String'>
-    readonly parentNumber: FieldRef<"User", 'String'>
-    readonly parentEmail: FieldRef<"User", 'String'>
-    readonly parentOTP: FieldRef<"User", 'String'>
-    readonly parentOTPExpiry: FieldRef<"User", 'DateTime'>
-    readonly isParentEmailVerified: FieldRef<"User", 'Boolean'>
     readonly address: FieldRef<"User", 'Json'>
     readonly skill: FieldRef<"User", 'String'>
     readonly forgetPasswordToken: FieldRef<"User", 'String'>
@@ -5752,13 +5687,7 @@ export namespace Prisma {
     birthday: 'birthday',
     age: 'age',
     number: 'number',
-    parentName: 'parentName',
     relation: 'relation',
-    parentNumber: 'parentNumber',
-    parentEmail: 'parentEmail',
-    parentOTP: 'parentOTP',
-    parentOTPExpiry: 'parentOTPExpiry',
-    isParentEmailVerified: 'isParentEmailVerified',
     address: 'address',
     skill: 'skill',
     forgetPasswordToken: 'forgetPasswordToken',
@@ -6037,13 +5966,7 @@ export namespace Prisma {
     birthday?: StringNullableFilter<"User"> | string | null
     age?: IntNullableFilter<"User"> | number | null
     number?: StringNullableFilter<"User"> | string | null
-    parentName?: StringNullableFilter<"User"> | string | null
     relation?: StringNullableFilter<"User"> | string | null
-    parentNumber?: StringNullableFilter<"User"> | string | null
-    parentEmail?: StringNullableFilter<"User"> | string | null
-    parentOTP?: StringNullableFilter<"User"> | string | null
-    parentOTPExpiry?: DateTimeNullableFilter<"User"> | Date | string | null
-    isParentEmailVerified?: BoolFilter<"User"> | boolean
     address?: JsonNullableFilter<"User">
     skill?: StringNullableFilter<"User"> | string | null
     forgetPasswordToken?: StringNullableFilter<"User"> | string | null
@@ -6074,13 +5997,7 @@ export namespace Prisma {
     birthday?: SortOrder
     age?: SortOrder
     number?: SortOrder
-    parentName?: SortOrder
     relation?: SortOrder
-    parentNumber?: SortOrder
-    parentEmail?: SortOrder
-    parentOTP?: SortOrder
-    parentOTPExpiry?: SortOrder
-    isParentEmailVerified?: SortOrder
     address?: SortOrder
     skill?: SortOrder
     forgetPasswordToken?: SortOrder
@@ -6114,13 +6031,7 @@ export namespace Prisma {
     birthday?: StringNullableFilter<"User"> | string | null
     age?: IntNullableFilter<"User"> | number | null
     number?: StringNullableFilter<"User"> | string | null
-    parentName?: StringNullableFilter<"User"> | string | null
     relation?: StringNullableFilter<"User"> | string | null
-    parentNumber?: StringNullableFilter<"User"> | string | null
-    parentEmail?: StringNullableFilter<"User"> | string | null
-    parentOTP?: StringNullableFilter<"User"> | string | null
-    parentOTPExpiry?: DateTimeNullableFilter<"User"> | Date | string | null
-    isParentEmailVerified?: BoolFilter<"User"> | boolean
     address?: JsonNullableFilter<"User">
     skill?: StringNullableFilter<"User"> | string | null
     forgetPasswordToken?: StringNullableFilter<"User"> | string | null
@@ -6151,13 +6062,7 @@ export namespace Prisma {
     birthday?: SortOrder
     age?: SortOrder
     number?: SortOrder
-    parentName?: SortOrder
     relation?: SortOrder
-    parentNumber?: SortOrder
-    parentEmail?: SortOrder
-    parentOTP?: SortOrder
-    parentOTPExpiry?: SortOrder
-    isParentEmailVerified?: SortOrder
     address?: SortOrder
     skill?: SortOrder
     forgetPasswordToken?: SortOrder
@@ -6195,13 +6100,7 @@ export namespace Prisma {
     birthday?: StringNullableWithAggregatesFilter<"User"> | string | null
     age?: IntNullableWithAggregatesFilter<"User"> | number | null
     number?: StringNullableWithAggregatesFilter<"User"> | string | null
-    parentName?: StringNullableWithAggregatesFilter<"User"> | string | null
     relation?: StringNullableWithAggregatesFilter<"User"> | string | null
-    parentNumber?: StringNullableWithAggregatesFilter<"User"> | string | null
-    parentEmail?: StringNullableWithAggregatesFilter<"User"> | string | null
-    parentOTP?: StringNullableWithAggregatesFilter<"User"> | string | null
-    parentOTPExpiry?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
-    isParentEmailVerified?: BoolWithAggregatesFilter<"User"> | boolean
     address?: JsonNullableWithAggregatesFilter<"User">
     skill?: StringNullableWithAggregatesFilter<"User"> | string | null
     forgetPasswordToken?: StringNullableWithAggregatesFilter<"User"> | string | null
@@ -6489,13 +6388,7 @@ export namespace Prisma {
     birthday?: string | null
     age?: number | null
     number?: string | null
-    parentName?: string | null
     relation?: string | null
-    parentNumber?: string | null
-    parentEmail?: string | null
-    parentOTP?: string | null
-    parentOTPExpiry?: Date | string | null
-    isParentEmailVerified?: boolean
     address?: InputJsonValue | null
     skill?: string | null
     forgetPasswordToken?: string | null
@@ -6526,13 +6419,7 @@ export namespace Prisma {
     birthday?: string | null
     age?: number | null
     number?: string | null
-    parentName?: string | null
     relation?: string | null
-    parentNumber?: string | null
-    parentEmail?: string | null
-    parentOTP?: string | null
-    parentOTPExpiry?: Date | string | null
-    isParentEmailVerified?: boolean
     address?: InputJsonValue | null
     skill?: string | null
     forgetPasswordToken?: string | null
@@ -6562,13 +6449,7 @@ export namespace Prisma {
     birthday?: NullableStringFieldUpdateOperationsInput | string | null
     age?: NullableIntFieldUpdateOperationsInput | number | null
     number?: NullableStringFieldUpdateOperationsInput | string | null
-    parentName?: NullableStringFieldUpdateOperationsInput | string | null
     relation?: NullableStringFieldUpdateOperationsInput | string | null
-    parentNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    parentEmail?: NullableStringFieldUpdateOperationsInput | string | null
-    parentOTP?: NullableStringFieldUpdateOperationsInput | string | null
-    parentOTPExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    isParentEmailVerified?: BoolFieldUpdateOperationsInput | boolean
     address?: InputJsonValue | InputJsonValue | null
     skill?: NullableStringFieldUpdateOperationsInput | string | null
     forgetPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -6598,13 +6479,7 @@ export namespace Prisma {
     birthday?: NullableStringFieldUpdateOperationsInput | string | null
     age?: NullableIntFieldUpdateOperationsInput | number | null
     number?: NullableStringFieldUpdateOperationsInput | string | null
-    parentName?: NullableStringFieldUpdateOperationsInput | string | null
     relation?: NullableStringFieldUpdateOperationsInput | string | null
-    parentNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    parentEmail?: NullableStringFieldUpdateOperationsInput | string | null
-    parentOTP?: NullableStringFieldUpdateOperationsInput | string | null
-    parentOTPExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    isParentEmailVerified?: BoolFieldUpdateOperationsInput | boolean
     address?: InputJsonValue | InputJsonValue | null
     skill?: NullableStringFieldUpdateOperationsInput | string | null
     forgetPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -6635,13 +6510,7 @@ export namespace Prisma {
     birthday?: string | null
     age?: number | null
     number?: string | null
-    parentName?: string | null
     relation?: string | null
-    parentNumber?: string | null
-    parentEmail?: string | null
-    parentOTP?: string | null
-    parentOTPExpiry?: Date | string | null
-    isParentEmailVerified?: boolean
     address?: InputJsonValue | null
     skill?: string | null
     forgetPasswordToken?: string | null
@@ -6670,13 +6539,7 @@ export namespace Prisma {
     birthday?: NullableStringFieldUpdateOperationsInput | string | null
     age?: NullableIntFieldUpdateOperationsInput | number | null
     number?: NullableStringFieldUpdateOperationsInput | string | null
-    parentName?: NullableStringFieldUpdateOperationsInput | string | null
     relation?: NullableStringFieldUpdateOperationsInput | string | null
-    parentNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    parentEmail?: NullableStringFieldUpdateOperationsInput | string | null
-    parentOTP?: NullableStringFieldUpdateOperationsInput | string | null
-    parentOTPExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    isParentEmailVerified?: BoolFieldUpdateOperationsInput | boolean
     address?: InputJsonValue | InputJsonValue | null
     skill?: NullableStringFieldUpdateOperationsInput | string | null
     forgetPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -6705,13 +6568,7 @@ export namespace Prisma {
     birthday?: NullableStringFieldUpdateOperationsInput | string | null
     age?: NullableIntFieldUpdateOperationsInput | number | null
     number?: NullableStringFieldUpdateOperationsInput | string | null
-    parentName?: NullableStringFieldUpdateOperationsInput | string | null
     relation?: NullableStringFieldUpdateOperationsInput | string | null
-    parentNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    parentEmail?: NullableStringFieldUpdateOperationsInput | string | null
-    parentOTP?: NullableStringFieldUpdateOperationsInput | string | null
-    parentOTPExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    isParentEmailVerified?: BoolFieldUpdateOperationsInput | boolean
     address?: InputJsonValue | InputJsonValue | null
     skill?: NullableStringFieldUpdateOperationsInput | string | null
     forgetPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -7139,13 +6996,7 @@ export namespace Prisma {
     birthday?: SortOrder
     age?: SortOrder
     number?: SortOrder
-    parentName?: SortOrder
     relation?: SortOrder
-    parentNumber?: SortOrder
-    parentEmail?: SortOrder
-    parentOTP?: SortOrder
-    parentOTPExpiry?: SortOrder
-    isParentEmailVerified?: SortOrder
     address?: SortOrder
     skill?: SortOrder
     forgetPasswordToken?: SortOrder
@@ -7179,13 +7030,7 @@ export namespace Prisma {
     birthday?: SortOrder
     age?: SortOrder
     number?: SortOrder
-    parentName?: SortOrder
     relation?: SortOrder
-    parentNumber?: SortOrder
-    parentEmail?: SortOrder
-    parentOTP?: SortOrder
-    parentOTPExpiry?: SortOrder
-    isParentEmailVerified?: SortOrder
     skill?: SortOrder
     forgetPasswordToken?: SortOrder
     forgetPasswordTokenExpires?: SortOrder
@@ -7214,13 +7059,7 @@ export namespace Prisma {
     birthday?: SortOrder
     age?: SortOrder
     number?: SortOrder
-    parentName?: SortOrder
     relation?: SortOrder
-    parentNumber?: SortOrder
-    parentEmail?: SortOrder
-    parentOTP?: SortOrder
-    parentOTPExpiry?: SortOrder
-    isParentEmailVerified?: SortOrder
     skill?: SortOrder
     forgetPasswordToken?: SortOrder
     forgetPasswordTokenExpires?: SortOrder
@@ -8324,13 +8163,7 @@ export namespace Prisma {
     birthday?: string | null
     age?: number | null
     number?: string | null
-    parentName?: string | null
     relation?: string | null
-    parentNumber?: string | null
-    parentEmail?: string | null
-    parentOTP?: string | null
-    parentOTPExpiry?: Date | string | null
-    isParentEmailVerified?: boolean
     address?: InputJsonValue | null
     skill?: string | null
     forgetPasswordToken?: string | null
@@ -8360,13 +8193,7 @@ export namespace Prisma {
     birthday?: string | null
     age?: number | null
     number?: string | null
-    parentName?: string | null
     relation?: string | null
-    parentNumber?: string | null
-    parentEmail?: string | null
-    parentOTP?: string | null
-    parentOTPExpiry?: Date | string | null
-    isParentEmailVerified?: boolean
     address?: InputJsonValue | null
     skill?: string | null
     forgetPasswordToken?: string | null
@@ -8446,13 +8273,7 @@ export namespace Prisma {
     birthday?: NullableStringFieldUpdateOperationsInput | string | null
     age?: NullableIntFieldUpdateOperationsInput | number | null
     number?: NullableStringFieldUpdateOperationsInput | string | null
-    parentName?: NullableStringFieldUpdateOperationsInput | string | null
     relation?: NullableStringFieldUpdateOperationsInput | string | null
-    parentNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    parentEmail?: NullableStringFieldUpdateOperationsInput | string | null
-    parentOTP?: NullableStringFieldUpdateOperationsInput | string | null
-    parentOTPExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    isParentEmailVerified?: BoolFieldUpdateOperationsInput | boolean
     address?: InputJsonValue | InputJsonValue | null
     skill?: NullableStringFieldUpdateOperationsInput | string | null
     forgetPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8481,13 +8302,7 @@ export namespace Prisma {
     birthday?: NullableStringFieldUpdateOperationsInput | string | null
     age?: NullableIntFieldUpdateOperationsInput | number | null
     number?: NullableStringFieldUpdateOperationsInput | string | null
-    parentName?: NullableStringFieldUpdateOperationsInput | string | null
     relation?: NullableStringFieldUpdateOperationsInput | string | null
-    parentNumber?: NullableStringFieldUpdateOperationsInput | string | null
-    parentEmail?: NullableStringFieldUpdateOperationsInput | string | null
-    parentOTP?: NullableStringFieldUpdateOperationsInput | string | null
-    parentOTPExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    isParentEmailVerified?: BoolFieldUpdateOperationsInput | boolean
     address?: InputJsonValue | InputJsonValue | null
     skill?: NullableStringFieldUpdateOperationsInput | string | null
     forgetPasswordToken?: NullableStringFieldUpdateOperationsInput | string | null

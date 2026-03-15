@@ -7,6 +7,7 @@ import config from "../../../config";
 import { otpQueueEmail } from "../../bullMQ/init";
 import { Role } from "../../interface/user.interface";
 import { generateOtp } from "../../utils/generateOTP";
+import { firebaseAdmin } from "../../../config/firebase";
 
 const login = async (payload: { email: string; password: string }) => {
   const { email, password } = payload;
@@ -75,19 +76,19 @@ const login = async (payload: { email: string; password: string }) => {
   };
 };
 
-const googleLogin = async (payload: {
-  email: string;
-  name?: string;
-  image: string;
-}) => {
-  const { email, name, image } = payload;
+const googleLogin = async (token: string) => {
+  const decoded = await firebaseAdmin.auth().verifyIdToken(token);
+  console.log(decoded);
+  const email = decoded.email;
+  const name = decoded.name;
+  const firebaseUid = decoded.uid;
   let userData = await prisma.user.findFirst({ where: { email } });
   if (!userData) {
     userData = await prisma.user.create({
       data: {
         email,
         name,
-        image,
+        firebaseUid,
         role: Role.USER,
         isEmailVerified: true,
       },

@@ -17,7 +17,7 @@ const login = catchAsyncFn(async (req: Request, res: Response) => {
 });
 
 const googleLogin = catchAsyncFn(async (req: Request, res: Response) => {
-  const result = await authService.googleLogin(req.body);
+  const result = await authService.googleLogin(req.body.token);
 
   sendResponse(res, {
     success: true,

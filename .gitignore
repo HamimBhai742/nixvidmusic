@@ -6,4 +6,4 @@ node_modules
 .vercel
 dist
 
-echo "src/config/firebaseServiceKey.json"
+src/config/firebaseServiceKey.json

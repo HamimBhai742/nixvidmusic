@@ -2,9 +2,7 @@ node_modules
 # Keep environment variables out of version control
 .env
 
-/generated/prisma
+src/generated/prisma
 .vercel
 dist
 
-src/config/firebaseServiceKey.json
-src/config/firebaseServiceKey.json

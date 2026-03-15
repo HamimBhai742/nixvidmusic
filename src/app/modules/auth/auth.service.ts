@@ -7,7 +7,7 @@ import config from "../../../config";
 import { otpQueueEmail } from "../../bullMQ/init";
 import { Role } from "../../interface/user.interface";
 import { generateOtp } from "../../utils/generateOTP";
-import { firebaseAdmin } from "../../../config/firebase";
+import { firebaseAdmin } from "../firebase/firebase";
 
 const login = async (payload: { email: string; password: string }) => {
   const { email, password } = payload;

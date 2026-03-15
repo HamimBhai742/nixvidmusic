@@ -1,3 +1,5 @@
+import { SupportTicket } from "../../generated/prisma";
+
 export interface ISupport {
     name: string;
     email: string;
@@ -27,7 +29,7 @@ export interface ISupportTicket {
   name: string;
   email: string;
 
-  category: SupportCategory;
+  category: SupportTicket;
   subject: string;
   message: string;
 

@@ -38,7 +38,7 @@ const getAllSupportTicket = catchAsyncFn(
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,
-      message: result.message,
+      message: "Success",
       data: result,
     });
   },

@@ -5,8 +5,9 @@ import { verifyToken } from "./verifyToken";
 import { prisma } from "./prisma";
 import { AppError } from "../error/AppError";
 import httpStatusCode from "http-status";
+import { Prisma } from "../../generated/prisma";
 
-export const generateToken = async (user: Partial<IUser>) => {
+export const generateToken = async (user: Partial<Prisma.UserCreateInput>) => {
   const payload = {
     userId: user.id,
     name: user.name,
@@ -42,10 +43,6 @@ export const createNewAccessToken = async (refreshToken: string) => {
 
   if (user.status === "INACTIVE") {
     throw new AppError(httpStatusCode.NOT_FOUND, "User is inactive");
-  }
-
-  if (user.status === "DELETE") {
-    throw new AppError(httpStatusCode.NOT_FOUND, "User is deleted");
   }
 
   const payload = {

@@ -3,8 +3,11 @@ import { prisma } from "../../utils/prisma";
 import { otpQueueEmail } from "../../bullMQ/init";
 import { AppError } from "../../error/AppError";
 import { ISupportTicket } from "../../interface/support.interface";
+import { Prisma, TicketStatus } from "../../../generated/prisma";
 
-const createSupportTicket = async (payload: ISupportTicket) => {
+const createSupportTicket = async (
+  payload: Prisma.SupportTicketCreateInput,
+) => {
   const { name, email, message, category, subject } = payload;
   const ticket = await prisma.supportTicket.create({
     data: {
@@ -38,20 +41,20 @@ const createSupportTicket = async (payload: ISupportTicket) => {
 
 const closedSupportTicket = async (
   ticketId: string,
-  payload: Partial<ISupportTicket>,
+  status: Partial<TicketStatus>,
 ) => {
   const ticket = await prisma.supportTicket.update({
     where: {
       id: ticketId,
     },
     data: {
-      status: payload.status,
+      status: status,
     },
   });
 
   //when ticket is closed after delete the ticket
 
-  await prisma.supportTicket.delete({ where: { id: ticketId } }); 
+  await prisma.supportTicket.delete({ where: { id: ticketId } });
 
   await otpQueueEmail.add("supportTicketClosed", {
     userEmail: ticket.email,

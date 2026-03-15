@@ -79,8 +79,8 @@ const login = async (payload: { email: string; password: string }) => {
 const googleLogin = async (token: string) => {
   const decoded = await firebaseAdmin.auth().verifyIdToken(token);
   console.log(decoded);
-  const email = decoded.email;
-  const name = decoded.name;
+  const email = decoded?.email as string;
+  const name = decoded?.name;
   const firebaseUid = decoded.uid;
   let userData = await prisma.user.findFirst({ where: { email } });
   if (!userData) {

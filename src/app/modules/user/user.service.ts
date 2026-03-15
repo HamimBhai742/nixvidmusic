@@ -8,6 +8,7 @@ import { AppError } from "../../error/AppError";
 import httpStatus from "http-status";
 import { Secret } from "jsonwebtoken";
 import { generateForgetToken, generateToken } from "../../utils/generateToken";
+import { Prisma } from "../../../generated/prisma";
 
 const register = async (payload: UserPayload) => {
   const existingUser = await prisma.user.findFirst({
@@ -287,7 +288,7 @@ const resetPassword = async (
   return { message: "Password reset successfully" };
 };
 
-const updateUserProfile = async (userId: string, data: Partial<IUser>) => {
+const updateUserProfile = async (userId: string, data: Partial<Prisma.UserCreateInput>) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new AppError(httpStatus.NOT_FOUND, "User not found");
 

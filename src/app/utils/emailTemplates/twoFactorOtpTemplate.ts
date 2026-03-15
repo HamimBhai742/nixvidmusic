@@ -2,8 +2,13 @@
 
 import sendEmail from "./nodemailerTransport";
 
-export const twoFactorOtpTemplate = async (userName: string, subject: string, email: string, otp: string,) => {
-    const html = `<!DOCTYPE html>
+export const twoFactorOtpTemplate = async (
+  userName: string,
+  subject: string,
+  email: string,
+  otp: string,
+) => {
+  const html = `<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -11,100 +16,21 @@ export const twoFactorOtpTemplate = async (userName: string, subject: string, em
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login Verification Code</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        .email-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .email-header {
-            padding: 40px 40px 20px;
-            text-align: center;
-        }
-
-        .company-logo img {
-            width: 120px;
-            height: auto;
-        }
-
-        .email-content {
-            padding: 0 40px 30px;
-        }
-
-        .greeting {
-            font-size: 16px;
-            color: #2c3e50;
-            margin-bottom: 16px;
-            font-weight: 500;
-        }
-
-        .main-text {
-            font-size: 16px;
-            color: #5a6c7d;
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-
-        .warning-text {
-            font-size: 14px;
-            color: #7f8c8d;
-            margin-bottom: 24px;
-        }
-
-        .verification-section {
-            text-align: center;
-            padding: 24px 0;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            margin: 24px 0;
-        }
-
-        .verification-label {
-            font-size: 16px;
-            color: #2c3e50;
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-
-        .verification-code {
-            font-size: 36px;
-            font-weight: 700;
-            color: #8b5cf6;
-            letter-spacing: 3px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .footer {
-            padding: 24px 40px;
-            text-align: center;
-            border-top: 1px solid #ecf0f1;
-            color: #7f8c8d;
-            font-size: 14px;
-        }
-
+        body { margin: 0; padding: 0; background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+        .email-header { padding: 40px 40px 20px; text-align: center; }
+        .company-logo img { width: 120px; height: auto; }
+        .email-content { padding: 0 40px 30px; }
+        .greeting { font-size: 16px; color: #2c3e50; margin-bottom: 16px; font-weight: 500; }
+        .main-text { font-size: 16px; color: #5a6c7d; line-height: 1.6; margin-bottom: 16px; }
+        .warning-text { font-size: 14px; color: #7f8c8d; margin-bottom: 24px; }
+        .verification-section { text-align: center; padding: 24px 0; background-color: #f8f9fa; border-radius: 8px; margin: 24px 0; }
+        .verification-label { font-size: 16px; color: #2c3e50; margin-bottom: 12px; font-weight: 600; }
+        .verification-code { font-size: 36px; font-weight: 700; color: #8b5cf6; letter-spacing: 3px; font-family: 'Courier New', monospace; }
+        .footer { padding: 24px 40px; text-align: center; border-top: 1px solid #ecf0f1; color: #7f8c8d; font-size: 14px; }
         @media only screen and (max-width: 600px) {
-
-            .email-header,
-            .email-content,
-            .footer {
-                padding-left: 20px !important;
-                padding-right: 20px !important;
-            }
-
-            .verification-code {
-                font-size: 28px;
-                letter-spacing: 2px;
-            }
+            .email-header, .email-content, .footer { padding-left: 20px !important; padding-right: 20px !important; }
+            .verification-code { font-size: 28px; letter-spacing: 2px; }
         }
     </style>
 </head>
@@ -140,7 +66,7 @@ export const twoFactorOtpTemplate = async (userName: string, subject: string, em
                         </div>
 
                         <p class="warning-text">
-                            This code will expire in a few minutes for your security.
+                            This code will expire in <strong>2 minutes</strong> for your security.
                         </p>
                     </div>
 
@@ -156,8 +82,6 @@ export const twoFactorOtpTemplate = async (userName: string, subject: string, em
 </body>
 
 </html>`;
-    //   await sendEmail(email, subject, html);
-    await sendEmail(email, subject, html)
 
-}
-
+  await sendEmail(email, subject, html);
+};

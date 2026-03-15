@@ -214,7 +214,7 @@ const verifyForgetPasswordOtp = async (
   );
 
   // ✅ Update user with new token and expiry
-  const newExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+  const newExpiry = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
   await prisma.user.update({
     where: { email },
     data: {

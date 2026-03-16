@@ -42,15 +42,6 @@ export interface IUser {
   age?: number | null;
   number?: string | null;
 
-  parentName?: string | null;
-  relation?: string | null;
-  parentNumber?: string | null;
-  parentEmail?: string | null;
-  parentOTP?: string | null;
-  parentOTPExpiry?: Date | null;
-
-  isParentEmailVerified: boolean;
-
   address?: any; // because Json
   skill?: string | null;
 

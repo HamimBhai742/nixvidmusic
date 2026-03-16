@@ -1,8 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
 import { AppError } from "../error/AppError";
-import { Prisma } from "../../generated/prisma";
-
+import { PrismaClientKnownRequestError, PrismaClientValidationError } from "@prisma/client/runtime/library";
 
 
 export const globalErrorHandler = (
@@ -32,7 +31,7 @@ export const globalErrorHandler = (
   }
 
   // Prisma errors
-  else if (err instanceof Prisma.PrismaClientKnownRequestError) {
+  else if (err instanceof PrismaClientKnownRequestError) {
     switch (err.code) {
       case "P2002": // Unique constraint failed
         statusCode = 409;
@@ -59,7 +58,7 @@ export const globalErrorHandler = (
   }
 
   // Prisma validation error
-  else if (err instanceof Prisma.PrismaClientValidationError) {
+  else if (err instanceof PrismaClientValidationError) {
     statusCode = 400;
     message = "Prisma validation error";
     errorSource["prisma"] = err.message;

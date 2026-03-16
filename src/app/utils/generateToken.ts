@@ -1,13 +1,12 @@
 import jwt, { JwtPayload, Secret, SignOptions } from "jsonwebtoken";
 import config from "../../config";
-import { IUser } from "../interface/user.interface";
 import { verifyToken } from "./verifyToken";
 import { prisma } from "./prisma";
 import { AppError } from "../error/AppError";
 import httpStatusCode from "http-status";
-import { Prisma } from "../../generated/prisma";
 
-export const generateToken = async (user: Partial<Prisma.UserCreateInput>) => {
+
+export const generateToken = async (user: any) => {
   const payload = {
     userId: user.id,
     name: user.name,

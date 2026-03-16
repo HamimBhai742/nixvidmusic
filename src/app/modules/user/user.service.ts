@@ -1,6 +1,6 @@
 import config from "../../../config";
 import bcrypt from "bcryptjs";
-import { IUser, UserPayload } from "../../interface/user.interface";
+import { UserPayload } from "../../interface/user.interface";
 import { generateOtp } from "../../utils/generateOTP";
 import { prisma } from "../../utils/prisma";
 import { otpQueueEmail } from "../../bullMQ/queues/mailQueues";
@@ -8,21 +8,23 @@ import { AppError } from "../../error/AppError";
 import httpStatus from "http-status";
 import { Secret } from "jsonwebtoken";
 import { generateForgetToken, generateToken } from "../../utils/generateToken";
-import { Prisma } from "../../../generated/prisma";
 
 const register = async (payload: UserPayload) => {
   const existingUser = await prisma.user.findFirst({
     where: { email: payload?.email },
   });
 
-  if(existingUser?.status === "PENDING" && existingUser?.isEmailVerified === false ){ 
+  if (
+    existingUser?.status === "PENDING" &&
+    existingUser?.isEmailVerified === false
+  ) {
     throw new AppError(httpStatus.UNAUTHORIZED, "Try again after 2 minutes");
   }
 
   if (existingUser) {
     throw new AppError(httpStatus.UNAUTHORIZED, "User already exists!");
   }
-  
+
   const hashedPass = await bcrypt.hash(
     payload.password,
     config.bcrypt_salt_rounds,
@@ -296,18 +298,17 @@ const resetPassword = async (
   return { message: "Password reset successfully" };
 };
 
-const updateUserProfile = async (
-  userId: string,
-  data: Partial<Prisma.UserCreateInput>,
-) => {
+const updateUserProfile = async (userId: string, data: any) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new AppError(httpStatus.NOT_FOUND, "User not found");
 
-  const hashedPassword = await bcrypt.hash(
-    data.password as string,
-    config.bcrypt_salt_rounds,
-  );
-  data.password = hashedPassword;
+  if (data?.password) {
+    const hashedPassword = await bcrypt.hash(
+      data.password as string,
+      config.bcrypt_salt_rounds,
+    );
+    data.password = hashedPassword;
+  }
 
   return await prisma.user.update({ where: { id: userId }, data });
 };

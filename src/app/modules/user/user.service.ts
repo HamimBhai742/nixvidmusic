@@ -299,6 +299,9 @@ const resetPassword = async (
 };
 
 const updateUserProfile = async (userId: string, data: any) => {
+  if (!data) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Update data is required");
+  }
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new AppError(httpStatus.NOT_FOUND, "User not found");
 

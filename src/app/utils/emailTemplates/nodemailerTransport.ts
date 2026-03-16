@@ -13,7 +13,7 @@ const sendEmail = async (
     service: "gmail",
     // port: 465,
     // port: 587,
-    // secure: true,
+    // secure: false,
     auth: {
       user: config.smtp.user,
       pass: config.smtp.pass,

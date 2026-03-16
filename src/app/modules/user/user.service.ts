@@ -14,9 +14,15 @@ const register = async (payload: UserPayload) => {
   const existingUser = await prisma.user.findFirst({
     where: { email: payload?.email },
   });
+
+  if(existingUser?.status === "PENDING" && existingUser?.isEmailVerified === false ){ 
+    throw new AppError(httpStatus.UNAUTHORIZED, "Try again after 2 minutes");
+  }
+
   if (existingUser) {
     throw new AppError(httpStatus.UNAUTHORIZED, "User already exists!");
   }
+  
   const hashedPass = await bcrypt.hash(
     payload.password,
     config.bcrypt_salt_rounds,

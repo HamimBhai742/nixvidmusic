@@ -21,16 +21,34 @@ const createSupportTicket = async (payload: any) => {
       httpStatus.BAD_REQUEST,
       "Failed to create support ticket",
     );
-  await otpQueueEmail.add("adminSupport", {
-    adminEmail: "mdhamim5088@gmail.com",
-    ticket,
-  });
+  await otpQueueEmail.add(
+    "adminSupport",
+    {
+      adminEmail: "mdhamim5088@gmail.com",
+      ticket,
+    },
+    {
+      jobId: `${ticket.id}-${Date.now()}`,
+      removeOnComplete: true,
+      attempts: 3,
+      backoff: { type: "fixed", delay: 5000 },
+    },
+  );
 
-  await otpQueueEmail.add("autoReplySupport", {
-    userEmail: email,
-    userName: name,
-    ticketId: ticket.id,
-  });
+  await otpQueueEmail.add(
+    "autoReplySupport",
+    {
+      userEmail: email,
+      userName: name,
+      ticketId: ticket.id,
+    },
+    {
+      jobId: `${ticket.id}-${Date.now()}`,
+      removeOnComplete: true,
+      attempts: 3,
+      backoff: { type: "fixed", delay: 5000 },
+    },
+  );
   return {
     message: "Ticket created successfully",
   };

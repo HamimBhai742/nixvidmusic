@@ -15,6 +15,7 @@ export const supportAdminTemplate = async (
   <div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:30px;">
     <div style="max-width:600px;margin:auto;background:#fff;border-radius:8px;padding:30px;">
       <h2 style="color:#6C5CE7;">📩 New Support Ticket</h2>
+
       
       <p><strong>Ticket ID:</strong> ${ticket.id}</p>
       <p><strong>Name:</strong> ${ticket.name}</p>
@@ -31,6 +32,13 @@ export const supportAdminTemplate = async (
       <p style="font-size:14px;color:#888;">
         Please respond within 24 hours.
       </p>
+
+      <p style="margin-top:30px;">
+        Regards,<br/>
+        <strong>Support Team</strong>
+      </p>
+      <hr style="margin:20px 0;" />
+      Date: ${new Date().toLocaleString()}
     </div>
   </div>
   `;

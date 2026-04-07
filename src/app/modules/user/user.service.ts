@@ -8,22 +8,16 @@ import { AppError } from "../../error/AppError";
 import httpStatus from "http-status";
 import { Secret } from "jsonwebtoken";
 import { generateForgetToken, generateToken } from "../../utils/generateToken";
+import e from "express";
+import { registrationOtpTemplate } from "../../utils/emailTemplates/registrationOtpTemplate";
+import { forgetPasswordOtpTemplate } from "../../utils/emailTemplates/forgetPasswordOtpTemplate";
+import { passwordResetSuccessTemplate } from "../../utils/emailTemplates/passwordResetSuccessTemplate";
+import { registrationSuccessTemplate } from "../../utils/emailTemplates/registrationSuccessTemplate";
 
 const register = async (payload: UserPayload) => {
-  const existingUser = await prisma.user.findFirst({
+  const existingUser = await prisma.user.findUnique({
     where: { email: payload?.email },
   });
-
-  if (
-    existingUser?.status === "PENDING" &&
-    existingUser?.isEmailVerified === false
-  ) {
-    throw new AppError(httpStatus.UNAUTHORIZED, "Try again after 2 minutes");
-  }
-
-  if (existingUser) {
-    throw new AppError(httpStatus.UNAUTHORIZED, "User already exists!");
-  }
 
   const hashedPass = await bcrypt.hash(
     payload.password,
@@ -38,26 +32,70 @@ const register = async (payload: UserPayload) => {
     otp,
     otpExpiry,
   };
+
+  if (
+    existingUser?.status === "PENDING" &&
+    existingUser?.isEmailVerified === false
+  ) {
+    // await otpQueueEmail.add(
+    //   "registrationOtp",
+    //   {
+    //     userName: existingUser.name,
+    //     email: existingUser.email,
+    //     otpCode: otp,
+    //     subject: "Your Verification OTP",
+    //   },
+    //   {
+    //     jobId: `${existingUser.id}-${Date.now()}`,
+    //     removeOnComplete: true,
+    //     attempts: 3,
+    //     backoff: { type: "fixed", delay: 5000 },
+    //   },
+    // );
+
+    await registrationOtpTemplate(
+      existingUser.name,
+      "Your Verification OTP",
+      existingUser.email,
+      otp,
+    );
+    return {
+      email: existingUser.email,
+      message:
+        "Verification OTP sent to your email. Please verify to activate account.",
+    };
+  }
+
+  if (existingUser) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "User already exists!");
+  }
+
   const user = await prisma.user.create({
     data: userData,
   });
 
-  await otpQueueEmail.add(
-    "registrationOtp",
-    {
-      userName: user.name,
-      email: user.email,
-      otpCode: otp,
-      subject: "Your Verification OTP",
-    },
-    {
-      jobId: `${user.id}-${Date.now()}`,
-      removeOnComplete: true,
-      attempts: 3,
-      backoff: { type: "fixed", delay: 5000 },
-    },
-  );
+  // await otpQueueEmail.add(
+  //   "registrationOtp",
+  //   {
+  //     userName: user.name,
+  //     email: user.email,
+  //     otpCode: otp,
+  //     subject: "Your Verification OTP",
+  //   },
+  //   {
+  //     jobId: `${user.id}-${Date.now()}`,
+  //     removeOnComplete: true,
+  //     attempts: 3,
+  //     backoff: { type: "fixed", delay: 5000 },
+  //   },
+  // );
 
+  await registrationOtpTemplate(
+    user.name,
+    "Your Verification OTP",
+    user.email,
+    otp,
+  );
   return {
     email: user.email,
     message:
@@ -98,6 +136,7 @@ const verifyRegisterOtp = async (email: string, otp: string) => {
 
   const token = await generateToken(user);
 
+  await registrationSuccessTemplate(user.name, user.email);
   return {
     name: user.name,
     email: user.email,
@@ -126,22 +165,28 @@ const resendRegisterOTP = async (email: string) => {
     },
   });
 
-  await otpQueueEmail.add(
-    "registrationOtp",
-    {
-      userName: user.name,
-      email: user.email,
-      otpCode: otp,
-      subject: "Your Verification OTP",
-    },
-    {
-      jobId: `${user.id}-${Date.now()}`,
-      removeOnComplete: true,
-      attempts: 3,
-      backoff: { type: "fixed", delay: 5000 },
-    },
-  );
+  // await otpQueueEmail.add(
+  //   "registrationOtp",
+  //   {
+  //     userName: user.name,
+  //     email: user.email,
+  //     otpCode: otp,
+  //     subject: "Your Verification OTP",
+  //   },
+  //   {
+  //     jobId: `${user.id}-${Date.now()}`,
+  //     removeOnComplete: true,
+  //     attempts: 3,
+  //     backoff: { type: "fixed", delay: 5000 },
+  //   },
+  // );
 
+  await registrationOtpTemplate(
+    user.name,
+    "Your Verification OTP",
+    user.email,
+    otp,
+  );
   return {
     email: user.email,
     message:
@@ -175,22 +220,28 @@ const requestPasswordReset = async (email: string) => {
     },
   });
 
-  await otpQueueEmail.add(
-    "forgetPasswordOtp",
-    {
-      userName: user.name,
-      email: user.email,
-      otpCode: otp,
-      subject: "Your Reset Password OTP",
-    },
-    {
-      jobId: `${user.id}-${Date.now()}`,
-      removeOnComplete: true,
-      attempts: 3,
-      backoff: { type: "fixed", delay: 5000 },
-    },
-  );
+  // await otpQueueEmail.add(
+  //   "forgetPasswordOtp",
+  //   {
+  //     userName: user.name,
+  //     email: user.email,
+  //     otpCode: otp,
+  //     subject: "Your Reset Password OTP",
+  //   },
+  //   {
+  //     jobId: `${user.id}-${Date.now()}`,
+  //     removeOnComplete: true,
+  //     attempts: 3,
+  //     backoff: { type: "fixed", delay: 5000 },
+  //   },
+  // );
 
+  await forgetPasswordOtpTemplate(
+    user.name,
+    "Your Reset Password OTP",
+    email,
+    otp,
+  );
   return { message: "OTP sent to email", tempToken };
 };
 
@@ -279,22 +330,29 @@ const resetPassword = async (
     },
   });
 
-  await otpQueueEmail.add(
-    "resetPasswordSuccess",
-    {
-      userName: user.name,
-      email: user.email,
-      subject: "Password reset successfully",
-      secureLink: `${config.client_url}/secure-account`,
-    },
-    {
-      jobId: `${user.id}-${Date.now()}`,
-      removeOnComplete: true,
-      attempts: 3,
-      backoff: { type: "fixed", delay: 5000 },
-    },
-  );
+  // await otpQueueEmail.add(
+  //   "resetPasswordSuccess",
+  //   {
+  //     userName: user.name,
+  //     email: user.email,
+  //     subject: "Password reset successfully",
+  //     secureLink: `${config.client_url}/secure-account`,
+  //   },
+  //   {
+  //     jobId: `${user.id}-${Date.now()}`,
+  //     removeOnComplete: true,
+  //     attempts: 3,
+  //     backoff: { type: "fixed", delay: 5000 },
+  //   },
+  // );
 
+  const loginLink = `${config.client_url}/login`;
+  await passwordResetSuccessTemplate(
+    user.name,
+    "Password reset successfully",
+    email,
+    loginLink,
+  );
   return { message: "Password reset successfully" };
 };
 
@@ -316,6 +374,13 @@ const updateUserProfile = async (userId: string, data: any) => {
   return await prisma.user.update({ where: { id: userId }, data });
 };
 
+const profilePhotoUpdate = async (userId: string, image: string) => {
+  if (!image) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Update data is required");
+  }
+  return await prisma.user.update({ where: { id: userId }, data: {image} });
+};
+
 export const userServices = {
   register,
   resendRegisterOTP,
@@ -324,4 +389,5 @@ export const userServices = {
   requestPasswordReset,
   updateUserProfile,
   verifyRegisterOtp,
+  profilePhotoUpdate,
 };

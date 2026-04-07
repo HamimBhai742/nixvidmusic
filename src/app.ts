@@ -5,7 +5,6 @@ import httpStatus from "http-status";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import router from "./app/routes";
 import { stripeWebhook } from "./app/modules/stripe/stripeWebhook";
-import { cronJob } from "./app/utils/cronJob";
 
 const app: Application = express();
 app.use(
@@ -43,6 +42,5 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-cronJob();
 
 export default app;

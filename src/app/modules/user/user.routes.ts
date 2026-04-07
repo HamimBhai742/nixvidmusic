@@ -10,6 +10,7 @@ import {
 } from "./user.zod.schema";
 import { checkAuth } from "../../middleware/checkAuth";
 import { Role } from "../../interface/user.interface";
+import { upload } from "../../middleware/upload";
 
 const router = Router();
 
@@ -46,6 +47,13 @@ router.put(
   "/update-profile",
   checkAuth(Role.USER),
   userController.updateUserProfile,
+);
+
+router.patch(
+  "/update-profile-photo",
+  checkAuth(Role.USER),
+  upload.single("file"),
+  userController.profilePhotoUpdate,
 );
 
 router.post("/resend-register-otp", userController.resendRegisterOTP);

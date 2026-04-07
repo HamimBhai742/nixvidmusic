@@ -8,6 +8,8 @@ import { otpQueueEmail } from "../../bullMQ/init";
 import { Role } from "../../interface/user.interface";
 import { generateOtp } from "../../utils/generateOTP";
 import { firebaseAdmin } from "../firebase/firebase";
+import { loginOtpTemplate } from "../../utils/emailTemplates/loginOtpTemplate";
+import { passwordChangedTemplate } from "../../utils/emailTemplates/passwordChangedTemplate";
 
 const login = async (payload: { email: string; password: string }) => {
   const { email, password } = payload;
@@ -39,22 +41,28 @@ const login = async (payload: { email: string; password: string }) => {
       },
     });
 
-    await otpQueueEmail.add(
-      "loginOtp",
-      {
-        userName: userData.name,
-        email: userData.email,
-        otpCode: otp,
-        subject: "Your Verification OTP",
-      },
-      {
-        jobId: `${userData.id}-${Date.now()}`,
-        removeOnComplete: true,
-        attempts: 5,
-        backoff: { type: "fixed", delay: 5000 },
-      },
-    );
+    // await otpQueueEmail.add(
+    //   "loginOtp",
+    //   {
+    //     userName: userData.name,
+    //     email: userData.email,
+    //     otpCode: otp,
+    //     subject: "Your Verification OTP",
+    //   },
+    //   {
+    //     jobId: `${userData.id}-${Date.now()}`,
+    //     removeOnComplete: true,
+    //     attempts: 5,
+    //     backoff: { type: "fixed", delay: 5000 },
+    //   },
+    // );
 
+    await loginOtpTemplate(
+      userData.name,
+      "Verification OTP",
+      userData.email,
+      otp,
+    );
     return {
       data: {
         email: userData.email,
@@ -125,22 +133,23 @@ const resendLoginOTP = async (email: string) => {
     },
   });
 
-  await otpQueueEmail.add(
-    "loginOtp",
-    {
-      userName: user.name,
-      email: user.email,
-      otpCode: otp,
-      subject: "Your Verification OTP",
-    },
-    {
-      jobId: `${user.id}-${Date.now()}`,
-      removeOnComplete: true,
-      attempts: 3,
-      backoff: { type: "fixed", delay: 5000 },
-    },
-  );
+  // await otpQueueEmail.add(
+  //   "loginOtp",
+  //   {
+  //     userName: user.name,
+  //     email: user.email,
+  //     otpCode: otp,
+  //     subject: "Your Verification OTP",
+  //   },
+  //   {
+  //     jobId: `${user.id}-${Date.now()}`,
+  //     removeOnComplete: true,
+  //     attempts: 3,
+  //     backoff: { type: "fixed", delay: 5000 },
+  //   },
+  // );
 
+  await loginOtpTemplate(user.name, "Verification OTP", user.email, otp);
   return {
     email: user.email,
     message:
@@ -219,22 +228,29 @@ const changePassword = async (
     data: { password: hashedPassword },
   });
 
-  await otpQueueEmail.add(
-    "passwordChangedConfirmation",
-    {
-      userName: user.name,
-      email: user.email,
-      subject: "Password Changed Successfully",
-      secureLink: `${config.client_url}/secure-account`,
-    },
-    {
-      jobId: `${user.id}-${Date.now()}`,
-      removeOnComplete: true,
-      attempts: 3,
-      backoff: { type: "fixed", delay: 5000 },
-    },
-  );
+  // await otpQueueEmail.add(
+  //   "passwordChangedConfirmation",
+  //   {
+  //     userName: user.name,
+  //     email: user.email,
+  //     subject: "Password Changed Successfully",
+  //     secureLink: `${config.client_url}/secure-account`,
+  //   },
+  //   {
+  //     jobId: `${user.id}-${Date.now()}`,
+  //     removeOnComplete: true,
+  //     attempts: 3,
+  //     backoff: { type: "fixed", delay: 5000 },
+  //   },
+  // );
 
+  const secureLink = `${config.client_url}/secure-account`;
+  await passwordChangedTemplate(
+    user.name,
+    "Password Changed Successfully",
+    user.email,
+    secureLink,
+  );
   return {
     message: "Password changed successfully",
   };

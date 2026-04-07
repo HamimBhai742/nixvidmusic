@@ -4,6 +4,8 @@ import { userServices } from "./user.service";
 import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from "http-status";
 import { IJwtPayload } from "../../interface/user.interface";
+import { uploadToCloudinary } from "../../utils/uploadFile";
+import { CloudinaryUploadResponse } from "../../interface/Cloudinary.interface";
 
 const register = catchAsyncFn(async (req: Request, res: Response) => {
   const result = await userServices.register(req.body);
@@ -54,20 +56,22 @@ const requestPasswordReset = catchAsyncFn(
   },
 );
 
-const verifyForgetPasswordOtp = catchAsyncFn(async (req: Request, res: Response) => {
-  const result = await userServices.verifyForgetPasswordOtp(
-    req.body.email,
-    req.body.otp,
-    req.body.token,
-  );
+const verifyForgetPasswordOtp = catchAsyncFn(
+  async (req: Request, res: Response) => {
+    const result = await userServices.verifyForgetPasswordOtp(
+      req.body.email,
+      req.body.otp,
+      req.body.token,
+    );
 
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: result.message,
-    data: result.tempToken,
-  });
-});
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: result.message,
+      data: result.tempToken,
+    });
+  },
+);
 
 const resetPassword = catchAsyncFn(async (req: Request, res: Response) => {
   const result = await userServices.resetPassword(
@@ -101,6 +105,30 @@ const updateUserProfile = catchAsyncFn(
   },
 );
 
+const profilePhotoUpdate = catchAsyncFn(
+  async (req: Request & { user?: IJwtPayload }, res: Response) => {
+    const userId = req.user?.userId;
+    if (req.file) {
+      const result = (await uploadToCloudinary(
+        req.file,
+      )) as CloudinaryUploadResponse;
+      req.body.image = result?.secure_url;
+    }
+
+    const update = await userServices.profilePhotoUpdate(
+      userId as string,
+      req.body.image as string,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Profile updated successfully",
+      data: null,
+    });
+  },
+);
+
 export const userController = {
   register,
   resendRegisterOTP,
@@ -108,5 +136,6 @@ export const userController = {
   verifyForgetPasswordOtp,
   resetPassword,
   updateUserProfile,
-  verifyRegisterOTP
+  verifyRegisterOTP,
+  profilePhotoUpdate,
 };

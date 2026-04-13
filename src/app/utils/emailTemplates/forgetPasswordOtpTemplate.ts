@@ -6,61 +6,167 @@ export const forgetPasswordOtpTemplate = async (
   email: string,
   otp: string,
 ) => {
+  const year = new Date().getFullYear();
+
   const html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Forgot Password Verification</title>
-<style>
-    body { margin: 0; padding: 0; background-color: #f4f6f8; font-family: 'Segoe UI', Roboto, Arial, sans-serif; color: #2c3e50; }
-    .container { max-width: 600px; margin: 30px auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
-    .header { background-color: #225ce4; padding: 30px; text-align: center; color: #fff; }
-    .header img { max-width: 100px; margin-bottom: 15px; }
-    .content { padding: 30px 25px; line-height: 1.6; font-size: 16px; }
-    .greeting { font-weight: 600; margin-bottom: 15px; }
-    .otp-section { background-color: #f4f6f8; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0; }
-    .otp-code { font-size: 32px; font-weight: bold; color: #225ce4; letter-spacing: 3px; }
-    .cta-button { display: inline-block; margin-top: 20px; padding: 12px 25px; background-color: #225ce4; color: #fff; text-decoration: none; border-radius: 5px; font-weight: 600; transition: background-color 0.3s ease; }
-    .cta-button:hover { background-color: #1a3dbd; }
-    .footer { text-align: center; font-size: 14px; color: #7f8c8d; padding: 20px 25px; border-top: 1px solid #e0e0e0; }
-    .footer a { color: #225ce4; text-decoration: none; }
-    @media only screen and (max-width: 600px) { .content, .footer { padding: 20px 15px; } .otp-code { font-size: 28px; } }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${subject}</title>
+  <!--[if mso]>
+  <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+  <![endif]-->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #f0f2f5;
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      color: #1a1d23;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    @media only screen and (max-width: 620px) {
+      .wrapper { padding: 16px 12px !important; }
+      .card { border-radius: 12px !important; }
+      .otp-code { font-size: 30px !important; letter-spacing: 10px !important; }
+      .content-pad { padding: 28px 20px !important; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Akkord AI Logo">
-            <h1>Akkord AI</h1>
+  <div class="wrapper" style="padding: 40px 16px; background-color: #f0f2f5;">
+
+    <!-- Outer card -->
+    <div class="card" style="
+      max-width: 580px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #e2e5ea;
+    ">
+
+      <!-- Header -->
+      <div style="
+        background-color: #1a40c8;
+        padding: 32px 40px;
+        text-align: center;
+      ">
+        <img
+          src="https://imglink.cc/cdn/Ow8ExrW8jK.png"
+          alt="Akkord AI"
+          width="152"
+          height="152"
+          style="display: block; margin: 0 auto 12px; border-radius: 10px;"
+        />
+      </div>
+
+      <!-- Body -->
+      <div class="content-pad" style="padding: 36px 40px;">
+
+        <!-- Title -->
+        <h1 style="
+          font-size: 22px;
+          font-weight: 700;
+          color: #0f1117;
+          letter-spacing: -0.4px;
+          margin-bottom: 8px;
+        ">Password reset request</h1>
+
+        <p style="font-size: 15px; color: #5a6070; line-height: 1.6; margin-bottom: 24px;">
+          Hi <strong style="color: #1a1d23;">${userName}</strong>, we received a request to reset the password associated with your Akkord AI account.
+        </p>
+
+        <!-- Divider -->
+        <div style="border-top: 1px solid #ebedf0; margin-bottom: 24px;"></div>
+
+        <!-- OTP block -->
+        <p style="font-size: 13px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: #8a90a0; margin-bottom: 14px;">
+          Your one-time passcode
+        </p>
+
+        <div style="
+          background-color: #f5f7ff;
+          border: 1px dashed #b0bcf5;
+          border-radius: 10px;
+          padding: 28px 20px;
+          text-align: center;
+          margin-bottom: 20px;
+        ">
+          <p class="otp-code" style="
+            font-size: 36px;
+            font-weight: 800;
+            color: #1a40c8;
+            letter-spacing: 14px;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+          ">${otp}</p>
         </div>
 
-        <!-- Content -->
-        <div class="content">
-            <p class="greeting">Hello ${userName},</p>
-            <p>We received a request to reset the password for your account. Use the OTP below to complete the process. <strong>Do not share this code with anyone.</strong> </p>
-
-            <!-- OTP Section -->
-            <div class="otp-section">
-                <p class="otp-code">${otp}</p>
-            </div>
-
-            <!-- OTP Expiry -->
-            <p><strong>Note:</strong> This OTP is valid for <strong>2 minutes</strong> only. Please use it before it expires.</p>
-
-            <p>If you did not request this, you can safely ignore this email.</p>
+        <!-- Expiry pill -->
+        <div style="text-align: center; margin-bottom: 28px;">
+          <span style="
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: #fff4e5;
+            color: #9a5700;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 100px;
+            border: 1px solid #ffd280;
+          ">
+            &#9203; Expires in 2 minutes
+          </span>
         </div>
 
-        <!-- Footer -->
-        <div class="footer">
-            <p>Regards,<br>Team <strong>Akkord AI</strong></p>
-            <p><a href="#">www.akkord.ai</a></p>
+        <!-- Divider -->
+        <div style="border-top: 1px solid #ebedf0; margin-bottom: 24px;"></div>
+
+        <!-- Security notice -->
+        <div style="
+          background-color: #fafafa;
+          border-left: 3px solid #1a40c8;
+          border-radius: 0 8px 8px 0;
+          padding: 14px 16px;
+          margin-bottom: 24px;
+        ">
+          <p style="font-size: 13.5px; color: #444c5e; line-height: 1.6;">
+            <strong style="color: #1a1d23;">Security tip:</strong> Never share this code with anyone — including Akkord AI support. Our team will never ask for your OTP.
+          </p>
         </div>
-    </div>
+
+        <p style="font-size: 14px; color: #7a8090; line-height: 1.6;">
+          If you didn't request a password reset, you can safely disregard this email. Your account remains secure.
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div style="
+        background-color: #f8f9fb;
+        border-top: 1px solid #ebedf0;
+        padding: 24px 40px;
+        text-align: center;
+      ">
+        <p style="font-size: 13px; color: #9aa0ae; margin-bottom: 6px;">
+          Sent by the <strong style="color: #6b7280;">Akkord AI</strong> team
+        </p>
+        <a href="https://www.akkord.ai" style="font-size: 13px; color: #1a40c8; font-weight: 500;">
+          www.akkord.ai
+        </a>
+        <p style="font-size: 12px; color: #b8bdc9; margin-top: 16px;">
+          &copy; ${year} Akkord AI. All rights reserved.
+        </p>
+      </div>
+
+    </div><!-- /card -->
+  </div><!-- /wrapper -->
 </body>
 </html>
 `;
+
   await sendEmail(email, subject, html);
 };

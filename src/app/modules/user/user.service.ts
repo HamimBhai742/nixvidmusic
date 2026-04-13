@@ -378,8 +378,15 @@ const profilePhotoUpdate = async (userId: string, image: string) => {
   if (!image) {
     throw new AppError(httpStatus.BAD_REQUEST, "Update data is required");
   }
-  return await prisma.user.update({ where: { id: userId }, data: {image} });
+  return await prisma.user.update({ where: { id: userId }, data: { image } });
 };
+
+const getAllUsers = async () =>
+  prisma.user.findFirst({
+    orderBy: {
+      updatedAt: "desc",
+    },
+  });
 
 export const userServices = {
   register,
@@ -390,4 +397,5 @@ export const userServices = {
   updateUserProfile,
   verifyRegisterOtp,
   profilePhotoUpdate,
+  getAllUsers,
 };

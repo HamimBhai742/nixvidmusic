@@ -129,6 +129,17 @@ const profilePhotoUpdate = catchAsyncFn(
   },
 );
 
+
+const getAllUsers=catchAsyncFn(async(req:Request & { user?: IJwtPayload }, res:Response)=>{
+  const result=await userServices.getAllUsers();
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "All Users",
+    data: result,
+  });
+})
+
 export const userController = {
   register,
   resendRegisterOTP,
@@ -138,4 +149,5 @@ export const userController = {
   updateUserProfile,
   verifyRegisterOTP,
   profilePhotoUpdate,
+  getAllUsers
 };

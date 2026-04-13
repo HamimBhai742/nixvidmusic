@@ -61,6 +61,14 @@ const createSupportTicket = async (payload: any) => {
 };
 
 const closedSupportTicket = async (ticketId: string, status: TicketStatus) => {
+  console.log(ticketId)
+
+  const ticketExists = await prisma.supportTicket.findUnique({
+    where: {
+      id: ticketId,
+    },
+  })
+  console.log(ticketExists)
   const ticket = await prisma.supportTicket.update({
     where: {
       id: ticketId,

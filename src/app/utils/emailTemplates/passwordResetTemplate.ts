@@ -109,7 +109,7 @@ export const passwordResetTemplate = async (userName: string, subject: string, e
 
                     <!-- Header -->
                     <div class="header">
-                        <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Akkord AI" />
+                        <img src="https://imglink.cc/cdn/Ow8ExrW8jK.png" alt="Akkord AI" />
                     </div>
 
                     <!-- Content -->

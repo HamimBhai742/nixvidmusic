@@ -58,4 +58,9 @@ router.patch(
 
 router.post("/resend-register-otp", userController.resendRegisterOTP);
 
+router.get(
+  "/all-users",
+  userController.getAllUsers,
+);
+
 export const userRoutes = router;

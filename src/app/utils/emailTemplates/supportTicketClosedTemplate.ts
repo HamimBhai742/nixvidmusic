@@ -3,39 +3,108 @@ import sendEmail from "./nodemailerTransport";
 export const supportClosedTemplate = async (
   userEmail: string,
   userName: string,
-  ticketId: string
-) => {
-  const html = `
-  <div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:30px;">
-    <div style="max-width:600px;margin:auto;background:#fff;border-radius:8px;padding:30px;">
-      
-      <h2 style="color:#00B894;">✅ Ticket Resolved</h2>
+  ticketId: string,
+  newTicketLink: string = "https://akkordai.com/support",
+): Promise<void> => {
+  const subject = "Your Support Ticket Has Been Resolved";
 
-      <p>Hello ${userName},</p>
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>${subject}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f0f2f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f0f2f5;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table role="presentation" width="100%" style="max-width:560px;background-color:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e6ea;">
+          <tr>
+            <td align="center" style="padding:36px 40px 28px;border-bottom:1px solid #f0f2f5;">
+              <img src="https://imglink.cc/cdn/Ow8ExrW8jK.png" alt="Akkord AI" width="110" style="display:block;height:auto;" />
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:36px 40px 28px;">
+              <p style="margin:0 0 8px;font-size:20px;font-weight:600;color:#111827;">
+                Your ticket has been resolved
+              </p>
+              <p style="margin:0 0 28px;font-size:15px;line-height:1.7;color:#4b5563;">
+                Hi ${userName}, we're happy to let you know that your support
+                request has been reviewed and marked as resolved.
+              </p>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:16px;">
+                <tr>
+                  <td style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:18px 20px;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td>
+                          <p style="margin:0 0 3px;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#16a34a;">
+                            Support ticket
+                          </p>
+                          <p style="margin:0;font-size:22px;font-weight:700;color:#15803d;font-family:'Courier New',Courier,monospace;">
+                            #${ticketId}
+                          </p>
+                        </td>
+                        <td align="right" style="vertical-align:middle;">
+                          <span style="display:inline-block;background-color:#dcfce7;border:1px solid #bbf7d0;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:#15803d;">
+                            Resolved
+                          </span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:28px;">
+                <tr>
+                  <td style="background-color:#f9fafb;border-radius:8px;padding:14px 16px;">
+                    <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#111827;">
+                      Still experiencing issues?
+                    </p>
+                    <p style="margin:0;font-size:13px;color:#6b7280;line-height:1.6;">
+                      Simply reply to this email and our support team will reopen
+                      your ticket and continue assisting you.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td align="center">
+                    <a href="${newTicketLink}"
+                       style="display:inline-block;background-color:#2250d9;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:14px 32px;border-radius:7px;letter-spacing:0.2px;">
+                      Submit a new ticket &rarr;
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 40px;">
+              <hr style="border:none;border-top:1px solid #f0f2f5;margin:0;" />
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 40px;text-align:center;">
+              <p style="margin:0 0 6px;font-size:13px;color:#6b7280;">
+                Thank you for choosing <strong style="color:#374151;">Akkord AI</strong>.
+                We're always here to help.
+              </p>
+              <p style="margin:0;font-size:12px;color:#9ca3af;">
+                &copy; ${new Date().getFullYear()} Akkord AI. All rights reserved.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
 
-      <p>
-        Your support ticket <strong>#${ticketId}</strong> has been marked as resolved.
-      </p>
-
-      <p>
-        If your issue is still not resolved, you can reply to this email.
-      </p>
-
-      <hr style="margin:20px 0;" />
-
-      <p style="font-size:14px;color:#888;">
-        Thank you for using our service.
-      </p>
-
-      <p style="margin-top:30px;">
-        Regards,<br/>
-        <strong>Support Team</strong>
-        <br/>
-        <strong>Akkord AI</strong>
-      </p>
-    </div>
-  </div>
-  `;
-
-  await sendEmail(userEmail, "Your Support Ticket is Resolved", html);
+  await sendEmail(userEmail, subject, html);
 };

@@ -3,7 +3,7 @@ import sendEmail from "./nodemailerTransport";
 export const registrationSuccessTemplate = async (
   userName: string,
   email: string,
-) => {
+): Promise<void> => {
   const subject = "Welcome to Akkord AI – You're All Set!";
 
   const html = `<!DOCTYPE html>
@@ -11,108 +11,134 @@ export const registrationSuccessTemplate = async (
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Registration Successful</title>
-  <style>
-    body { margin: 0; padding: 0; background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-    .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
-    .email-header { padding: 40px 40px 20px; text-align: center; }
-    .company-logo img { width: 120px; height: auto; }
-    .email-content { padding: 0 40px 30px; }
-    .greeting { font-size: 16px; color: #2c3e50; margin-bottom: 16px; font-weight: 500; }
-    .main-text { font-size: 16px; color: #5a6c7d; line-height: 1.6; margin-bottom: 16px; }
-    .success-banner { text-align: center; padding: 28px 20px; background: linear-gradient(135deg, #e8f4fd 0%, #eaf6ec 100%); border-radius: 8px; margin: 24px 0; border: 1px solid #d4edda; }
-    .success-icon { font-size: 48px; margin-bottom: 12px; }
-    .success-title { font-size: 20px; font-weight: 700; color: #1a7f4b; margin-bottom: 6px; }
-    .success-subtitle { font-size: 14px; color: #5a6c7d; }
-    .divider { border: none; border-top: 1px solid #ecf0f1; margin: 24px 0; }
-    .features-title { font-size: 15px; font-weight: 600; color: #2c3e50; margin-bottom: 16px; }
-    .feature-item { display: flex; align-items: flex-start; margin-bottom: 14px; }
-    .feature-icon { font-size: 18px; margin-right: 12px; flex-shrink: 0; line-height: 1.4; }
-    .feature-text { font-size: 14px; color: #5a6c7d; line-height: 1.5; }
-    .feature-text strong { color: #2c3e50; }
-    .cta-section { text-align: center; margin: 28px 0 12px; }
-    .cta-button { display: inline-block; background-color: #225ce4; color: #ffffff !important; text-decoration: none; font-size: 15px; font-weight: 600; padding: 14px 36px; border-radius: 6px; letter-spacing: 0.3px; }
-    .cta-subtext { font-size: 13px; color: #95a5a6; margin-top: 12px; }
-    .footer { padding: 24px 40px; text-align: center; border-top: 1px solid #ecf0f1; color: #7f8c8d; font-size: 14px; line-height: 1.7; }
-    .footer a { color: #225ce4; text-decoration: none; }
-    @media only screen and (max-width: 600px) {
-      .email-header, .email-content, .footer { padding-left: 20px !important; padding-right: 20px !important; }
-      .cta-button { padding: 12px 24px !important; font-size: 14px !important; }
-    }
-  </style>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>${subject}</title>
 </head>
-<body>
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+<body style="margin:0;padding:0;background-color:#f0f2f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f0f2f5;">
     <tr>
-      <td style="padding: 20px 0;">
-        <div class="email-container">
+      <td align="center" style="padding:40px 16px;">
+
+        <!-- Card -->
+        <table role="presentation" width="100%" style="max-width:560px;background-color:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e6ea;">
 
           <!-- Header -->
-          <div class="email-header">
-            <div class="company-logo">
-              <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Akkord AI" />
-            </div>
-          </div>
+          <tr>
+            <td align="center" style="padding:36px 40px 28px;border-bottom:1px solid #f0f2f5;">
+              <img src="https://imglink.cc/cdn/Ow8ExrW8jK.png" alt="Akkord AI" width="110" style="display:block;height:auto;" />
+            </td>
+          </tr>
 
-          <!-- Content -->
-          <div class="email-content">
-            <p class="greeting">Hi ${userName},</p>
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 40px 28px;">
 
-            <p class="main-text">
-              Your email has been successfully verified and your <strong>Akkord AI</strong> account is now active.
-              We're thrilled to have you on board!
-            </p>
+              <p style="margin:0 0 8px;font-size:20px;font-weight:600;color:#111827;">
+                Welcome to Akkord AI, ${userName}!
+              </p>
 
-            <!-- Success Banner -->
-            <div class="success-banner">
-              <div class="success-icon">✅</div>
-              <div class="success-title">Account Successfully Created</div>
-              <div class="success-subtitle">You're now part of the Akkord AI community</div>
-            </div>
+              <p style="margin:0 0 28px;font-size:15px;line-height:1.7;color:#4b5563;">
+                Your email has been verified and your account is now active.
+                Here's everything you can do from day one.
+              </p>
 
-            <hr class="divider" />
+              <!-- Success badge -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:28px;">
+                <tr>
+                  <td align="center" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:24px 20px;">
+                    <p style="margin:0 0 8px;font-size:28px;line-height:1;">✓</p>
+                    <p style="margin:0 0 4px;font-size:16px;font-weight:600;color:#15803d;">Account successfully created</p>
+                    <p style="margin:0;font-size:13px;color:#16a34a;">You're now part of the Akkord AI community</p>
+                  </td>
+                </tr>
+              </table>
 
-            <!-- What's Next -->
-            <p class="features-title">Here's what you can do with Akkord AI:</p>
+              <!-- Section label -->
+              <p style="margin:0 0 12px;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#6b7280;">
+                What you can do now
+              </p>
 
-            <div class="feature-item">
-              <span class="feature-icon">⚡</span>
-              <span class="feature-text"><strong>Supercharge your workflow</strong> – Leverage AI-powered tools designed to save you time and effort every single day.</span>
-            </div>
+              <!-- Feature: Workflow -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:8px;">
+                <tr>
+                  <td style="background-color:#f9fafb;border-radius:8px;padding:14px 16px;">
+                    <p style="margin:0 0 3px;font-size:14px;font-weight:600;color:#111827;">⚡ Supercharge your workflow</p>
+                    <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280;">AI-powered tools designed to save you time and effort every single day.</p>
+                  </td>
+                </tr>
+              </table>
 
-            <div class="feature-item">
-              <span class="feature-icon">🤝</span>
-              <span class="feature-text"><strong>Collaborate seamlessly</strong> – Invite your team, share insights, and work smarter together in one unified platform.</span>
-            </div>
+              <!-- Feature: Collaborate -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:8px;">
+                <tr>
+                  <td style="background-color:#f9fafb;border-radius:8px;padding:14px 16px;">
+                    <p style="margin:0 0 3px;font-size:14px;font-weight:600;color:#111827;">🤝 Collaborate seamlessly</p>
+                    <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280;">Invite your team, share insights, and work smarter together in one unified platform.</p>
+                  </td>
+                </tr>
+              </table>
 
-            <div class="feature-item">
-              <span class="feature-icon">📊</span>
-              <span class="feature-text"><strong>Gain actionable insights</strong> – Access real-time analytics and intelligent reports to drive confident, data-backed decisions.</span>
-            </div>
+              <!-- Feature: Insights -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:32px;">
+                <tr>
+                  <td style="background-color:#f9fafb;border-radius:8px;padding:14px 16px;">
+                    <p style="margin:0 0 3px;font-size:14px;font-weight:600;color:#111827;">📊 Gain actionable insights</p>
+                    <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280;">Access real-time analytics and intelligent reports to drive data-backed decisions.</p>
+                  </td>
+                </tr>
+              </table>
 
-            <hr class="divider" />
+              <!-- CTA -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td align="center" style="padding-bottom:10px;">
+                    <a href="https://akkordai.com/dashboard"
+                       style="display:inline-block;background-color:#2250d9;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:14px 36px;border-radius:7px;letter-spacing:0.2px;">
+                      Go to your dashboard &rarr;
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center">
+                    <p style="margin:0;font-size:13px;color:#9ca3af;">No setup required. You're ready to go.</p>
+                  </td>
+                </tr>
+              </table>
 
-            <!-- CTA -->
-            <div class="cta-section">
-              <a href="https://akkordai.com/dashboard" class="cta-button">Go to Your Dashboard →</a>
-              <p class="cta-subtext">No setup required. You're ready to go.</p>
-            </div>
-          </div>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="padding:0 40px;">
+              <hr style="border:none;border-top:1px solid #f0f2f5;margin:0;" />
+            </td>
+          </tr>
 
           <!-- Footer -->
-          <div class="footer">
-            Need help getting started? Visit our <a href="https://akkordai.com/help">Help Center</a> or reply to this email.<br /><br />
-            Regards,<br />
-            Team <strong>Akkord AI</strong>
-          </div>
+          <tr>
+            <td style="padding:24px 40px;text-align:center;">
+              <p style="margin:0 0 6px;font-size:13px;color:#6b7280;">
+                Need help getting started? Visit our
+                <a href="https://akkordai.com/help" style="color:#2250d9;text-decoration:none;">Help Center</a>
+                or reply to this email.
+              </p>
+              <p style="margin:0;font-size:12px;color:#9ca3af;">
+                &copy; ${new Date().getFullYear()} Akkord AI. All rights reserved.
+              </p>
+            </td>
+          </tr>
 
-        </div>
+        </table>
+        <!-- /Card -->
+
       </td>
     </tr>
   </table>
+
 </body>
-</html>
-`;
+</html>`;
 
   await sendEmail(email, subject, html);
 };

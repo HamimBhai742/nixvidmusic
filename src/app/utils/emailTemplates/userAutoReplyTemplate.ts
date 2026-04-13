@@ -6,35 +6,87 @@ export const supportAutoReplyTemplate = async (
   ticketId: string
 ) => {
   const html = `
-  <div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:30px;">
-    <div style="max-width:600px;margin:auto;background:#fff;border-radius:8px;padding:30px;">
-      
-      <h2 style="color:#6C5CE7;">We Received Your Support Request</h2>
+<!DOCTYPE html>
+<html>
+<body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, sans-serif;">
 
-      <p>Hello ${userName},</p>
+<table width="100%" bgcolor="#f4f6f8" cellpadding="0" cellspacing="0">
+<tr>
+<td align="center">
 
-      <p>
-        Thank you for contacting our support team. 
-        Your ticket ID is <strong>#${ticketId}</strong>.
-      </p>
+<table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:10px; overflow:hidden;">
 
-      <p>
-        Our team will review your request and respond within 24 hours.
-      </p>
+<!-- Header -->
+<tr>
+<td style="background:#6C5CE7; padding:20px; text-align:center;">
+  <h2 style="color:#ffffff; margin:0;">Akkord AI Support</h2>
+</td>
+</tr>
 
-      <hr style="margin:20px 0;" />
+<!-- Body -->
+<tr>
+<td style="padding:30px;">
 
-      <p style="font-size:14px;color:#888;">
-        If you did not create this request, please ignore this email.
-      </p>
+<h3 style="margin-top:0;">We Received Your Request ✅</h3>
 
-      <p style="margin-top:30px;">
-        Regards,<br/>
-        <strong>Support Team</strong>
-      </p>
-    </div>
-  </div>
-  `;
+<p>Hello <strong>${userName}</strong>,</p>
+
+<p>
+Thank you for contacting our support team. Your ticket has been successfully created.
+</p>
+
+<p>
+<strong>Ticket ID:</strong> #${ticketId}
+</p>
+
+<p>
+Our team will review your request and respond within <strong>24 hours</strong>.
+</p>
+
+<!-- CTA -->
+<div style="text-align:center; margin:25px 0;">
+<a href="#" style="
+  background:#6C5CE7;
+  color:#fff;
+  padding:12px 20px;
+  text-decoration:none;
+  border-radius:6px;
+  display:inline-block;
+">
+  Track Your Ticket
+</a>
+</div>
+
+<hr style="margin:20px 0;" />
+
+<p style="font-size:13px; color:#888;">
+If you did not create this request, you can safely ignore this email.
+</p>
+
+<p style="margin-top:25px;">
+Best regards,<br/>
+<strong>Akkord AI Support Team</strong>
+</p>
+
+</td>
+</tr>
+
+<!-- Footer -->
+<tr>
+<td style="background:#f1f1f1; text-align:center; padding:15px; font-size:12px; color:#888;">
+© ${new Date().getFullYear()} Akkord AI. All rights reserved.
+</td>
+</tr>
+
+</table>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>
+`;
 
   await sendEmail(userEmail, "Support Request Received", html);
 };

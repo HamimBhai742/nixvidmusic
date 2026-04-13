@@ -43,7 +43,7 @@ export const twoFactorOtpTemplate = async (
                     <!-- Header -->
                     <div class="email-header">
                         <div class="company-logo">
-                            <img src="https://i.ibb.co.com/QvN1hR6K/accord-technology-logo.png" alt="Akkord AI" />
+                            <img src="https://imglink.cc/cdn/Ow8ExrW8jK.png" alt="Akkord AI" />
                         </div>
                     </div>
 

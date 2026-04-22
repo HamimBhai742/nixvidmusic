@@ -123,22 +123,23 @@ const profilePhotoUpdate = catchAsyncFn(
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,
-      message: "Profile updated successfully",
+      message: "Profile image updated  successfully",
       data: null,
     });
   },
 );
 
-
-const getAllUsers=catchAsyncFn(async(req:Request & { user?: IJwtPayload }, res:Response)=>{
-  const result=await userServices.getAllUsers();
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "All Users",
-    data: result,
-  });
-})
+const getAllUsers = catchAsyncFn(
+  async (req: Request & { user?: IJwtPayload }, res: Response) => {
+    const result = await userServices.getAllUsers();
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "All Users",
+      data: result,
+    });
+  },
+);
 
 export const userController = {
   register,
@@ -149,5 +150,5 @@ export const userController = {
   updateUserProfile,
   verifyRegisterOTP,
   profilePhotoUpdate,
-  getAllUsers
+  getAllUsers,
 };

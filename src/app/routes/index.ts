@@ -6,6 +6,8 @@ import { uploadToCloudinary } from "../utils/uploadFile";
 import { subscriptionRouter } from "../modules/stripe/stripe.route";
 import { supportRoutes } from "../modules/support/support.routes";
 import { CloudinaryUploadResponse } from "../interface/Cloudinary.interface";
+import { contractRoutes } from "../modules/contract/contract.routes";
+import { chatRoutes } from "../modules/chat/chat.routes";
 
 const router = Router();
 
@@ -18,26 +20,14 @@ const routes = [
     path: "/auth",
     route: authRoutes,
   },
-  // {
-  //     path:'/products',
-  //     route:productRoutes
-  // },
-  // {
-  //     path:'/cart',
-  //     route:cartRoutes
-  // },
-  // {
-  //     path:'/address',
-  //     route:addressRoutes
-  // },
-  // {
-  //     path:'/orders',
-  //     route:orderRoutes
-  // },
-  // {
-  //     path:'/payments',
-  //     route:paymentRoutes
-  // },
+  {
+    path: "/contract",
+    route: contractRoutes,
+  },
+  {
+    path: "/chat",
+    route: chatRoutes,
+  },
   {
     path: "/stripe",
     route: subscriptionRouter,

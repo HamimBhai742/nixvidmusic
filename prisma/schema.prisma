@@ -38,6 +38,8 @@ model User {
   updatedAt                  DateTime     @updatedAt
 
   subscriptions UserSubscription[]
+  contracts     Contract[]
+
   @@map("users")
 }
 
@@ -115,6 +117,25 @@ model SupportTicket {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Contract {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String
+  document_id     String?
+  risk_level      String
+  meaning_summary String
+  key_risk_flags  KeyRiskFlag[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+type KeyRiskFlag {
+  title          String
+  description    String
+  why_it_matters String
 }
 
 enum TicketStatus {

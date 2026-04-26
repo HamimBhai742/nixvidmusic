@@ -4,7 +4,6 @@ import { prisma } from "../../utils/prisma";
 import httpStatus from "http-status";
 import bcrypt from "bcryptjs";
 import config from "../../../config";
-import { otpQueueEmail } from "../../bullMQ/init";
 import { Role } from "../../interface/user.interface";
 import { generateOtp } from "../../utils/generateOTP";
 import { firebaseAdmin } from "../firebase/firebase";
@@ -86,10 +85,12 @@ const login = async (payload: { email: string; password: string }) => {
 
 const googleLogin = async (token: string) => {
   const decoded = await firebaseAdmin.auth().verifyIdToken(token);
-  console.log(decoded);
   const email = decoded?.email as string;
   const name = decoded?.name;
-  const firebaseUid = decoded.uid;
+  const firebaseUid = decoded?.uid;
+  if (!email || !name || !firebaseUid) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid Google token");
+  }
   let userData = await prisma.user.findFirst({ where: { email } });
   if (!userData) {
     userData = await prisma.user.create({
@@ -103,6 +104,7 @@ const googleLogin = async (token: string) => {
       },
     });
   }
+
   const generateTokenData = await generateToken(userData);
 
   return {

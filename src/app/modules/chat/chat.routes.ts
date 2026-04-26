@@ -1,16 +1,15 @@
 import { Router } from "express";
-import { chatController } from "./chat.controller";
 import { upload } from "../../middleware/upload";
-import { validateRequest } from "../../middleware/validationRequest";
-import { chatZodSchema } from "./chat.zod.schema";
+import { chatController } from "./chat.controller";
+import { checkAuth } from "../../middleware/checkAuth";
+import { Role } from "../../interface/user.interface";
 
 const router = Router();
 
-router.post(
-  "/create-conversation",
-  upload.single("file"),
-  validateRequest(chatZodSchema),
-  chatController.chat,
-);
+router.post("/create-chat", checkAuth(Role.USER), chatController.createChat);
+
+router.post("/ask-question", checkAuth(Role.USER), chatController.chat);
+
+router.get("/get-my-chats/:chatId", checkAuth(Role.USER), chatController.getMyChat);
 
 export const chatRoutes = router;

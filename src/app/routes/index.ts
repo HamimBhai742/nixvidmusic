@@ -25,7 +25,7 @@ const routes = [
     route: contractRoutes,
   },
   {
-    path: "/chat",
+    path: "/chatbot",
     route: chatRoutes,
   },
   {

@@ -56,4 +56,15 @@ const getMyChat = async (chatId: string, userId: string) => {
   return chat;
 };
 
-export const chatServices = { chat, createChat , getMyChat};
+
+const deleteChat = async (chatId: string, userId: string) => {
+  const chat = await prisma.chat.delete({
+    where: {
+      id: chatId,
+      userId
+    },
+  });
+  return chat;
+};
+
+export const chatServices = { chat, createChat , getMyChat, deleteChat};

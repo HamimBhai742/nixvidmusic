@@ -8,6 +8,7 @@ import { uploadToCloudinary } from "../../utils/uploadFile";
 import { CloudinaryUploadResponse } from "../../interface/Cloudinary.interface";
 
 const register = catchAsyncFn(async (req: Request, res: Response) => {
+  console.log(req.body)
   const result = await userServices.register(req.body);
 
   sendResponse(res, {

@@ -12,4 +12,6 @@ router.post("/ask-question", checkAuth(Role.USER), chatController.chat);
 
 router.get("/get-my-chats/:chatId", checkAuth(Role.USER), chatController.getMyChat);
 
+router.delete("/delete-chat/:chatId", checkAuth(Role.USER), chatController.deleteChat);
+
 export const chatRoutes = router;

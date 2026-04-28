@@ -44,4 +44,20 @@ const getMyChat = catchAsyncFn(
   },
 );
 
-export const chatController = { chat, createChat, getMyChat };
+const deleteChat = catchAsyncFn(
+  async (req: Request & { user?: any }, res: Response) => {
+    const result = await chatServices.deleteChat(
+      req.params.chatId as string,
+      req.user.userId,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Chat deleted successfully",
+      data: result,
+    });
+  },
+);
+
+export const chatController = { chat, createChat, getMyChat , deleteChat};

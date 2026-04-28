@@ -15,6 +15,7 @@ import { passwordResetSuccessTemplate } from "../../utils/emailTemplates/passwor
 import { registrationSuccessTemplate } from "../../utils/emailTemplates/registrationSuccessTemplate";
 
 const register = async (payload: UserPayload) => {
+  console.log(payload)
   const existingUser = await prisma.user.findUnique({
     where: { email: payload?.email },
   });

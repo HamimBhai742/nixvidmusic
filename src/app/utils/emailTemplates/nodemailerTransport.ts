@@ -25,7 +25,7 @@ const sendEmail = async (
 
   // Email options
   const mailOptions = {
-    from: config.smtp.user,
+    from: `Akkord AI <${config.smtp.user}>`,
     // from: "support@deepbluedeal.com",
     to,
     subject,

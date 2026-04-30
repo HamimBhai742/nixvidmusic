@@ -6,7 +6,7 @@ export const validateRequest =
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (req?.body?.data) {
-        req.body = JSON.parse(req.body.data);
+        req.body = JSON.parse(req?.body?.data);
       }
       req.body = zodSchema.parse(req.body);
       return next();

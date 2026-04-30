@@ -270,6 +270,7 @@ const getMe = async (email: string) => {
     image: user.image,
     status: user.status,
     isEmailVerified: user.isEmailVerified,
+    plan: user.plan,
   };
 };
 

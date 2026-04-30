@@ -18,6 +18,16 @@ const chat = async (req: Request & { user?: any }) => {
     userId: req.user?.userId,
     ...req.body,
   };
+  console.log(data);
+  await prisma.chat.update({
+    where: {
+      id: data?.chat_id,
+    },
+    data: {
+      title: data?.user_asked_question,
+    },
+  });
+
   await prisma.chatMessage.create({
     data: {
       chatId: data?.chat_id,
@@ -39,6 +49,15 @@ const chat = async (req: Request & { user?: any }) => {
         role: "ASSISTANT",
       },
     });
+
+    await prisma.contract.update({
+      where: {
+        document_id: data?.document_id,
+      },
+      data: {
+        chatId: data?.chat_id,
+      },
+    });
   }
   return res.data;
 };
@@ -49,22 +68,39 @@ const getMyChat = async (chatId: string, userId: string) => {
       id: chatId,
       userId,
     },
-    include:{
-      messages: true
-    }
-  });
-  return chat;
-};
-
-
-const deleteChat = async (chatId: string, userId: string) => {
-  const chat = await prisma.chat.delete({
-    where: {
-      id: chatId,
-      userId
+    include: {
+      messages: true,
     },
   });
   return chat;
 };
 
-export const chatServices = { chat, createChat , getMyChat, deleteChat};
+const chatHistory = async (userId: string) => {
+  const chat = await prisma.chat.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      messages: true,
+    },
+  });
+  return chat;
+};
+
+const deleteChat = async (chatId: string, userId: string) => {
+  const chat = await prisma.chat.delete({
+    where: {
+      id: chatId,
+      userId,
+    },
+  });
+  return chat;
+};
+
+export const chatServices = {
+  chat,
+  createChat,
+  getMyChat,
+  deleteChat,
+  chatHistory,
+};

@@ -44,6 +44,20 @@ const getMyChat = catchAsyncFn(
   },
 );
 
+
+const chatHistory = catchAsyncFn(
+  async (req: Request & { user?: any }, res: Response) => {
+    const result = await chatServices.chatHistory(req.user.userId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Chat history retrieved successfully",
+      data: result,
+    });
+  },
+);
+
 const deleteChat = catchAsyncFn(
   async (req: Request & { user?: any }, res: Response) => {
     const result = await chatServices.deleteChat(
@@ -60,4 +74,4 @@ const deleteChat = catchAsyncFn(
   },
 );
 
-export const chatController = { chat, createChat, getMyChat , deleteChat};
+export const chatController = { chat, createChat, getMyChat , deleteChat, chatHistory};

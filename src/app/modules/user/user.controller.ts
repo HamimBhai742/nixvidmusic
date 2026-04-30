@@ -125,7 +125,7 @@ const profilePhotoUpdate = catchAsyncFn(
       success: true,
       statusCode: httpStatus.OK,
       message: "Profile image updated  successfully",
-      data: null,
+      data: update,
     });
   },
 );

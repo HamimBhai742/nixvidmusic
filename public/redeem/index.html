@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activate Creator Pass - NixVidMusic</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .pass-details-box {
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px dashed var(--primary);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+      text-align: left;
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+    .pass-details-title {
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .auth-cta-container {
+      display: none;
+      margin-top: 1.5rem;
+      animation: fadeIn 0.4s ease;
+    }
+    .auth-cta-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+    .user-profile-badge {
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      font-size: 0.85rem;
+    }
+    .user-avatar {
+      width: 24px;
+      height: 24px;
+      background: var(--gradient-accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-nav">
+    <div id="user-badge" class="user-profile-badge">
+      <div class="user-avatar" id="user-avatar-initial">U</div>
+      <span id="user-name-span">User</span>
+    </div>
+    <a href="/scan" id="nav-scan-link" class="nav-link" style="display: none;">Feature Scan</a>
+    <a href="/admin/redeem-codes" id="nav-admin-link" class="nav-link" style="display: none;">Admin Panel</a>
+    <a href="#" id="auth-logout-btn" class="nav-link" style="display: none;">Logout</a>
+  </div>
+
+  <div class="glass-container">
+    <div class="logo-container">
+      <div class="logo-fallback">NVM</div>
+      <h1 class="app-title">NixVidMusic</h1>
+      <span class="badge-creator-pass">Creator Pass</span>
+    </div>
+
+    <h2 style="text-align: center; margin-bottom: 0.5rem;">Redeem Your Card</h2>
+    <p style="text-align: center; margin-bottom: 2rem;">Scan the QR code or enter your 12-character unique code to activate 5 free feature accesses.</p>
+
+    <div id="notification-box"></div>
+
+    <form id="redeem-form" onsubmit="handleRedeemForm(event)">
+      <div class="form-group">
+        <label for="redeem-code" class="form-label">Unique Redeem Code</label>
+        <div class="input-wrapper">
+          <input 
+            type="text" 
+            id="redeem-code" 
+            class="form-input" 
+            placeholder="CREATOR-XXXX-XXXX" 
+            maxlength="20"
+            style="text-transform: uppercase; font-family: monospace; letter-spacing: 0.1em; text-align: center;"
+            required
+          >
+        </div>
+      </div>
+
+      <button type="button" id="btn-validate" class="btn btn-secondary" onclick="checkCodeValidity()" style="margin-bottom: 1rem;">
+        Check Code Validity
+      </button>
+
+      <div id="pass-details" class="pass-details-box">
+        <div class="pass-details-title">
+          <span>🎁</span> What this unlocks:
+        </div>
+        <p id="pass-details-text" style="margin-bottom: 0; color: #ffffff; font-weight: 500; font-size: 0.95rem;">
+          This code unlocks 5 Creator Pass scans.
+        </p>
+      </div>
+
+      <button type="submit" id="btn-submit-redeem" class="btn btn-primary" style="display: none;">
+        <span>⚡</span> Activate Creator Pass Now
+      </button>
+    </form>
+
+    <div id="auth-cta" class="auth-cta-container">
+      <p style="text-align: center; font-size: 0.9rem; color: #f87171; font-weight: 500; margin-bottom: 1rem;">
+        🔒 You must be logged in to claim this Creator Pass.
+      </p>
+      <div class="auth-cta-buttons">
+        <a href="/login" id="cta-login" class="btn btn-secondary" style="flex: 1;">Login</a>
+        <a href="/signup" id="cta-signup" class="btn btn-primary" style="flex: 1;">Sign Up</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-footer">
+    <p>&copy; 2026 NixVidMusic. Powered by RevenueCat & Creator Pass. <br>Need help? <a href="/support">Contact support</a></p>
+  </div>
+
+  <script>
+    let currentUser = null;
+    let isValidated = false;
+
+    // Check if code was passed in URL query param
+    window.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      
+      if (code) {
+        document.getElementById('redeem-code').value = code.toUpperCase();
+        // Auto validate if code is present in URL
+        checkCodeValidity();
+      }
+
+      await checkUserLogin();
+      updateAuthCTALinks();
+    });
+
+    async function checkUserLogin() {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        setLoggedOut();
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/v1/auth/me', {
+          method: 'GET',
+          headers: {
+            'Authorization': token
+          }
+        });
+
+        if (response.ok) {
+          const resJson = await response.json();
+          currentUser = resJson.data;
+          setLoggedIn(currentUser);
+        } else {
+          // Token expired or invalid
+          localStorage.removeItem('accessToken');
+          setLoggedOut();
+        }
+      } catch (err) {
+        console.error("Error fetching current user:", err);
+        setLoggedOut();
+      }
+    }
+
+    function setLoggedIn(user) {
+      document.getElementById('user-badge').style.display = 'flex';
+      document.getElementById('user-name-span').innerText = user.name;
+      document.getElementById('user-avatar-initial').innerText = user.name.charAt(0).toUpperCase();
+      
+      document.getElementById('auth-logout-btn').style.display = 'block';
+      document.getElementById('nav-scan-link').style.display = 'block';
+
+      if (user.role === 'ADMIN' || user.role === 'SUPERADMIN') {
+        document.getElementById('nav-admin-link').style.display = 'block';
+      }
+
+      // Hook up logout action
+      document.getElementById('auth-logout-btn').onclick = (e) => {
+        e.preventDefault();
+        localStorage.removeItem('accessToken');
+        window.location.reload();
+      };
+      
+      // Update the redeem button states if valid
+      if (isValidated) {
+        document.getElementById('btn-submit-redeem').style.display = 'flex';
+        document.getElementById('auth-cta').style.display = 'none';
+      }
+    }
+
+    function setLoggedOut() {
+      currentUser = null;
+      document.getElementById('user-badge').style.display = 'none';
+      document.getElementById('auth-logout-btn').style.display = 'none';
+      document.getElementById('nav-admin-link').style.display = 'none';
+      document.getElementById('nav-scan-link').style.display = 'none';
+
+      if (isValidated) {
+        document.getElementById('btn-submit-redeem').style.display = 'none';
+        document.getElementById('auth-cta').style.display = 'block';
+      }
+    }
+
+    function updateAuthCTALinks() {
+      const codeInput = document.getElementById('redeem-code').value.trim();
+      const codeParam = codeInput ? `&code=${encodeURIComponent(codeInput)}` : '';
+      
+      document.getElementById('cta-login').href = `/login?redirect=/redeem${codeParam}`;
+      document.getElementById('cta-signup').href = `/signup?redirect=/redeem${codeParam}`;
+    }
+
+    // Live validation
+    async function checkCodeValidity() {
+      const codeInput = document.getElementById('redeem-code').value.trim().toUpperCase();
+      const notifyBox = document.getElementById('notification-box');
+      const passDetails = document.getElementById('pass-details');
+      const passText = document.getElementById('pass-details-text');
+      const submitBtn = document.getElementById('btn-submit-redeem');
+      const authCta = document.getElementById('auth-cta');
+      
+      if (!codeInput) {
+        showNotification("Please enter a redeem code first.", "danger");
+        return;
+      }
+
+      // Update CTA links when code changes
+      updateAuthCTALinks();
+
+      showNotification("<div class='spinner' style='margin: 0 auto;'></div>", "warning");
+
+      try {
+        const response = await fetch('/api/v1/redeem/validate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ code: codeInput })
+        });
+
+        const resJson = await response.json();
+        
+        if (response.ok && resJson.success) {
+          isValidated = true;
+          showNotification("✨ Valid Creator Pass code recognized!", "success");
+          
+          passText.innerText = resJson.data.message || `This code unlocks ${resJson.data.scansAllowed} Creator Pass scans.`;
+          passDetails.style.display = 'block';
+          
+          if (currentUser) {
+            submitBtn.style.display = 'flex';
+            authCta.style.display = 'none';
+          } else {
+            submitBtn.style.display = 'none';
+            authCta.style.display = 'block';
+          }
+        } else {
+          isValidated = false;
+          showNotification(`❌ ${resJson.message || 'Invalid code.'}`, "danger");
+          passDetails.style.display = 'none';
+          submitBtn.style.display = 'none';
+          authCta.style.display = 'none';
+        }
+      } catch (err) {
+        isValidated = false;
+        console.error("Validation error:", err);
+        showNotification("Network error validating code. Please try again.", "danger");
+        passDetails.style.display = 'none';
+        submitBtn.style.display = 'none';
+        authCta.style.display = 'none';
+      }
+    }
+
+    async function handleRedeemForm(event) {
+      event.preventDefault();
+      
+      const codeInput = document.getElementById('redeem-code').value.trim().toUpperCase();
+      const notifyBox = document.getElementById('notification-box');
+      
+      if (!currentUser) {
+        showNotification("You must be logged in to redeem.", "danger");
+        return;
+      }
+
+      showNotification("<div class='spinner' style='margin: 0 auto;'></div> Applying Pass...", "warning");
+
+      try {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch('/api/v1/redeem/apply', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+          },
+          body: JSON.stringify({ code: codeInput })
+        });
+
+        const resJson = await response.json();
+
+        if (response.ok && resJson.success) {
+          showNotification("🎉 Creator Pass activated successfully! Redirecting...", "success");
+          setTimeout(() => {
+            window.location.href = '/creator-pass/success';
+          }, 1500);
+        } else {
+          showNotification(`❌ ${resJson.message || 'Failed to apply code.'}`, "danger");
+        }
+      } catch (err) {
+        console.error("Apply error:", err);
+        showNotification("Network error applying code. Please try again.", "danger");
+      }
+    }
+
+    function showNotification(message, type) {
+      const box = document.getElementById('notification-box');
+      box.className = `alert alert-${type}`;
+      box.innerHTML = `
+        <span class="alert-icon">${type === 'success' ? '✔' : type === 'danger' ? '✖' : '⚠'}</span>
+        <div>${message}</div>
+      `;
+    }
+
+    // Keep links in sync when typing
+    document.getElementById('redeem-code').addEventListener('input', () => {
+      isValidated = false;
+      document.getElementById('pass-details').style.display = 'none';
+      document.getElementById('btn-submit-redeem').style.display = 'none';
+      document.getElementById('auth-cta').style.display = 'none';
+      updateAuthCTALinks();
+    });
+  </script>
+</body>
+</html>

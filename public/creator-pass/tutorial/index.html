@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creator Pass Tutorial - NixVidMusic</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .step-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.25rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      text-align: left;
+      transition: var(--transition-smooth);
+    }
+    .step-card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateX(4px);
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+    .step-num {
+      width: 32px;
+      height: 32px;
+      background: var(--gradient-accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #ffffff;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+    .step-content h4 {
+      font-size: 1.05rem;
+      margin-bottom: 0.25rem;
+    }
+    .step-content p {
+      font-size: 0.88rem;
+      margin-bottom: 0;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glass-container" style="max-width: 520px;">
+    <div class="logo-container" style="margin-bottom: 1.5rem;">
+      <div class="logo-fallback">NVM</div>
+      <h1 class="app-title">Creator Pass Tutorial</h1>
+      <span class="badge-creator-pass">Step-by-Step Guide</span>
+    </div>
+
+    <h2 style="text-align: center; font-size: 1.6rem; margin-bottom: 0.5rem;">How to Use Your Pass</h2>
+    <p style="text-align: center; margin-bottom: 2rem;">Follow these three simple steps to start analyzing and transforming your music and media.</p>
+
+    <!-- STEP 1 -->
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Go to the Scan Panel</h4>
+        <p>Click the button below to visit our core Scan feature page. You'll see your remaining Creator Pass credits displayed in real-time.</p>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Perform an Action</h4>
+        <p>Upload a video/audio track or input a link. Visiting the page does NOT consume scans; credits are only deducted when a scan succeeds.</p>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Keep Going or Subscribe</h4>
+        <p>After your 5 free scans are exhausted, the app will seamlessly show you a subscription paywall to easily unlock unlimited monthly accesses.</p>
+      </div>
+    </div>
+
+    <a href="/scan" class="btn btn-primary" style="margin-top: 1rem;">
+      <span>🎵</span> Start Using Creator Pass
+    </a>
+  </div>
+
+  <div class="app-footer">
+    <p>&copy; 2026 NixVidMusic. <br><a href="/scan">Skip and Scan Now</a></p>
+  </div>
+
+</body>
+</html>

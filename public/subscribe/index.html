@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choose Your Plan - NixVidMusic</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .paywall-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+    @media (min-width: 768px) {
+      .paywall-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    .pricing-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      position: relative;
+      transition: var(--transition-smooth);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .pricing-card.popular {
+      background: rgba(99, 102, 241, 0.05);
+      border-color: var(--primary);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
+    }
+    .pricing-card:hover {
+      transform: translateY(-8px);
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    .pricing-card.popular:hover {
+      border-color: var(--secondary);
+      box-shadow: 0 15px 35px rgba(168, 85, 247, 0.25);
+    }
+    .pricing-header h4 {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .pricing-price {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 1rem;
+      font-family: var(--font-heading);
+    }
+    .pricing-price span {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+    .pricing-features {
+      list-style: none;
+      padding: 0;
+      margin-top: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+    .pricing-features li {
+      font-size: 0.88rem;
+      color: #d1d5db;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .pricing-features li span {
+      color: var(--primary);
+      font-weight: bold;
+    }
+    .popular-tag {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gradient-accent);
+      color: #ffffff;
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-nav">
+    <div id="user-badge" class="user-profile-badge" style="display: flex;">
+      <div class="user-avatar" id="user-avatar-initial">U</div>
+      <span id="user-name-span">User</span>
+    </div>
+    <a href="/scan" class="nav-link">Feature Scan</a>
+    <a href="#" id="auth-logout-btn" class="nav-link">Logout</a>
+  </div>
+
+  <div class="glass-container wide" style="max-width: 900px; text-align: center;">
+    <div class="logo-container">
+      <div class="logo-fallback">NVM</div>
+      <h1 class="app-title">Upgrade Your Experience</h1>
+      <span class="badge-creator-pass">Subscription Plans</span>
+    </div>
+
+    <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem;" id="paywall-title">Choose Your Access Tier</h2>
+    <p style="max-width: 600px; margin: 0 auto 1.5rem;" id="paywall-subtitle">
+      Your 5 Creator Pass free scans are completed. Unlock continuous unlimited access to all diagnostic scanning features with a monthly subscription.
+    </p>
+
+    <div id="notification-box"></div>
+
+    <div class="paywall-grid">
+      <!-- TIER 1 -->
+      <div class="pricing-card">
+        <div class="pricing-header">
+          <h4>Starter Tier</h4>
+          <div class="pricing-price">£5.99<span>/mo</span></div>
+          <p style="font-size: 0.8rem; line-height: 1.4; color: var(--text-muted);">Great for casual creators checking basic metrics.</p>
+        </div>
+        <ul class="pricing-features">
+          <li><span>✓</span> 50 detailed scans per month</li>
+          <li><span>✓</span> Standard analysis speeds</li>
+          <li><span>✓</span> Email support channel</li>
+        </ul>
+        <button onclick="subscribeUser('Starter Plan (£5.99/mo)')" class="btn btn-secondary">Select Starter</button>
+      </div>
+
+      <!-- TIER 2 (POPULAR) -->
+      <div class="pricing-card popular">
+        <div class="popular-tag">Best Value</div>
+        <div class="pricing-header">
+          <h4>Pro Creator</h4>
+          <div class="pricing-price">£9.99<span>/mo</span></div>
+          <p style="font-size: 0.8rem; line-height: 1.4; color: var(--text-muted);">Unlimited power for growing content creators.</p>
+        </div>
+        <ul class="pricing-features">
+          <li><span>✓</span> <strong>Unlimited scans</strong></li>
+          <li><span>✓</span> High-speed diagnostics</li>
+          <li><span>✓</span> Advanced metric history</li>
+          <li><span>✓</span> Priority Support response</li>
+        </ul>
+        <button onclick="subscribeUser('Pro Creator Plan (£9.99/mo)')" class="btn btn-primary">Subscribe to Pro</button>
+      </div>
+
+      <!-- TIER 3 -->
+      <div class="pricing-card">
+        <div class="pricing-header">
+          <h4>Enterprise</h4>
+          <div class="pricing-price">£14.99<span>/mo</span></div>
+          <p style="font-size: 0.8rem; line-height: 1.4; color: var(--text-muted);">Fully integrated tools for large agency campaigns.</p>
+        </div>
+        <ul class="pricing-features">
+          <li><span>✓</span> <strong>Unlimited scans</strong></li>
+          <li><span>✓</span> Multi-user seat sharing</li>
+          <li><span>✓</span> 24/7 dedicated support representative</li>
+          <li><span>✓</span> Custom CSV & API integrations</li>
+        </ul>
+        <button onclick="subscribeUser('Enterprise Plan (£14.99/mo)')" class="btn btn-secondary">Go Enterprise</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-footer">
+    <p>&copy; 2026 NixVidMusic. Managed safely by RevenueCat. <br>Need assistance? <a href="/support">Get support</a></p>
+  </div>
+
+  <script>
+    let currentUser = null;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await checkAuthSession();
+    });
+
+    async function checkAuthSession() {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/v1/auth/me', {
+          headers: { 'Authorization': token }
+        });
+
+        if (response.ok) {
+          const res = await response.json();
+          currentUser = res.data;
+          
+          document.getElementById('user-name-span').innerText = currentUser.name;
+          document.getElementById('user-avatar-initial').innerText = currentUser.name.charAt(0).toUpperCase();
+
+          // Hook logout
+          document.getElementById('auth-logout-btn').onclick = (e) => {
+            e.preventDefault();
+            localStorage.removeItem('accessToken');
+            window.location.href = '/login';
+          };
+          
+          // Modify title/subtitle if they already have premium or haven't run out yet
+          if (currentUser.plan === 'PREMIUM') {
+            document.getElementById('paywall-title').innerText = "Premium Active";
+            document.getElementById('paywall-subtitle').innerText = "You have an active Premium Subscription! You can enjoy unlimited scans without limits.";
+          }
+        } else {
+          localStorage.removeItem('accessToken');
+          window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+        }
+      } catch (err) {
+        console.error("Auth verify error:", err);
+        window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+      }
+    }
+
+    async function subscribeUser(planName) {
+      showNotification(`<div class='spinner' style='margin: 0 auto;'></div> [RevenueCat] Simulating Purchase of ${planName}...`, "warning");
+
+      const token = localStorage.getItem('accessToken');
+      try {
+        const response = await fetch('/api/v1/user/update-profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+          },
+          body: JSON.stringify({ plan: 'PREMIUM' })
+        });
+
+        const resJson = await response.json();
+
+        if (response.ok && resJson.success) {
+          showNotification(`🎉 Purchase Successful! ${planName} is active via RevenueCat. Redirecting to Scan...`, "success");
+          setTimeout(() => {
+            window.location.href = '/scan';
+          }, 2000);
+        } else {
+          showNotification(`❌ Purchase Simulation failed: ${resJson.message}`, "danger");
+        }
+      } catch (err) {
+        console.error("Purchase error:", err);
+        showNotification("Network error executing purchase simulation.", "danger");
+      }
+    }
+
+    function showNotification(message, type) {
+      const box = document.getElementById('notification-box');
+      box.className = `alert alert-${type}`;
+      box.innerHTML = `
+        <span class="alert-icon">${type === 'success' ? '✔' : type === 'danger' ? '✖' : '⚠'}</span>
+        <div>${message}</div>
+      `;
+    }
+  </script>
+</body>
+</html>

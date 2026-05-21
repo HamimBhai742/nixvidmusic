@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NixVidMusic - Feature Scan Panel</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    @media (min-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 3fr 2fr;
+      }
+    }
+    .status-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: left;
+    }
+    .credit-meter {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50px;
+      overflow: hidden;
+      margin-top: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .credit-progress {
+      height: 100%;
+      background: var(--gradient-accent);
+      width: 100%;
+      transition: width 0.5s ease;
+    }
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+    .history-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .history-table td {
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: #e5e7eb;
+    }
+    .history-status {
+      padding: 0.15rem 0.5rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .status-success {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+    }
+    .status-blocked {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+    }
+    .scan-terminal {
+      background: #070913;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 1rem;
+      font-family: monospace;
+      color: #34d399;
+      font-size: 0.85rem;
+      min-height: 120px;
+      max-height: 200px;
+      overflow-y: auto;
+      text-align: left;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-nav">
+    <div id="user-badge" class="user-profile-badge" style="display: flex;">
+      <div class="user-avatar" id="user-avatar-initial">U</div>
+      <span id="user-name-span">User</span>
+    </div>
+    <a href="/admin/redeem-codes" id="nav-admin-link" class="nav-link" style="display: none;">Admin Panel</a>
+    <a href="#" id="auth-logout-btn" class="nav-link">Logout</a>
+  </div>
+
+  <div class="glass-container wide" style="max-width: 960px; padding: 2rem;">
+    <div class="logo-container" style="align-items: flex-start; text-align: left; margin-bottom: 1rem;">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <div class="logo-fallback" style="margin-bottom: 0; width: 40px; height: 40px; font-size: 1.1rem;">NVM</div>
+        <div>
+          <h1 class="app-title" style="font-size: 1.5rem;">NixVidMusic</h1>
+          <p style="margin-bottom: 0; font-size: 0.85rem;">Premium Media Analysis Interface</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="notification-box"></div>
+
+    <div class="dashboard-grid">
+      <!-- CORE SCAN ACTIONS -->
+      <div>
+        <div class="status-card" style="height: 100%;">
+          <h3>🎵 Video/Audio Scan Panel</h3>
+          <p>Provide a valid media URL, video file, or audio track to run a full diagnostic scan and analysis.</p>
+
+          <form id="scan-form" onsubmit="executeScan(event)">
+            <div class="form-group">
+              <label for="media-url" class="form-label">Media link (TikTok, YouTube, MP3 URL)</label>
+              <input 
+                type="url" 
+                id="media-url" 
+                class="form-input" 
+                placeholder="https://www.tiktok.com/@creator/video/1234567"
+                required
+              >
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+              <button type="submit" id="btn-run-scan" class="btn btn-primary" style="flex: 2;">
+                <span>⚡</span> Run Diagnostics Scan
+              </button>
+              <button type="reset" class="btn btn-secondary" style="flex: 1;">Clear</button>
+            </div>
+          </form>
+
+          <div id="terminal-box" class="scan-terminal">
+            &gt; Terminal initialized. Ready for scan...
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR STATUS & METERS -->
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <!-- USER SUBSCRIPTION STATE -->
+        <div class="status-card">
+          <h4 style="margin-bottom: 0.75rem;">Account Access Level</h4>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <span style="font-size: 0.9rem; color: var(--text-muted);">Subscription Plan:</span>
+            <span id="sub-plan-badge" class="badge-creator-pass" style="margin-top: 0; background: #374151; box-shadow: none;">Free Plan</span>
+          </div>
+
+          <div id="creator-pass-section" style="display: none; padding-top: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
+              <span style="color: var(--text-muted);">Creator Pass Balance:</span>
+              <span id="scan-count-text" style="font-weight: 700; color: #ffffff;">5 / 5 Scans</span>
+            </div>
+            <div class="credit-meter">
+              <div id="scan-progress-bar" class="credit-progress"></div>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0; margin-top: 0.25rem;">
+              Scans left from physical TikTok card activation.
+            </p>
+          </div>
+
+          <div id="no-access-warning" style="display: none; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 0.75rem; margin-top: 0.75rem; font-size: 0.82rem; color: #f87171;">
+            ⚠ You have used all free scans. Please subscribe to continue.
+          </div>
+          
+          <a href="/subscribe" id="upgrade-btn" class="btn btn-secondary" style="margin-top: 1.25rem; font-size: 0.9rem; padding: 0.7rem 1.2rem; background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.2); color: #818cf8; display: none;">
+            ★ Go Premium / Manage Subscription
+          </a>
+        </div>
+
+        <!-- HISTORY SECTION -->
+        <div class="status-card" style="flex: 1;">
+          <h4 style="margin-bottom: 0.5rem;">Recent Scan History</h4>
+          <div style="overflow-x: auto; max-height: 250px;">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="history-tbody">
+                <tr>
+                  <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 1.5rem 0;">No scans logged yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-footer">
+    <p>&copy; 2026 NixVidMusic. <br>Need assistance? <a href="/support">Get support</a></p>
+  </div>
+
+  <script>
+    let currentUser = null;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await checkAuthSession();
+      await fetchAccessStatus();
+      await fetchScanHistory();
+    });
+
+    async function checkAuthSession() {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/v1/auth/me', {
+          headers: { 'Authorization': token }
+        });
+
+        if (response.ok) {
+          const res = await response.json();
+          currentUser = res.data;
+          
+          // Populate nav user profile
+          document.getElementById('user-name-span').innerText = currentUser.name;
+          document.getElementById('user-avatar-initial').innerText = currentUser.name.charAt(0).toUpperCase();
+
+          if (currentUser.role === 'ADMIN' || currentUser.role === 'SUPERADMIN') {
+            document.getElementById('nav-admin-link').style.display = 'block';
+          }
+
+          // Hook logout
+          document.getElementById('auth-logout-btn').onclick = (e) => {
+            e.preventDefault();
+            localStorage.removeItem('accessToken');
+            window.location.href = '/login';
+          };
+        } else {
+          localStorage.removeItem('accessToken');
+          window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+        }
+      } catch (err) {
+        console.error("Auth verify error:", err);
+        window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+      }
+    }
+
+    async function fetchAccessStatus() {
+      const token = localStorage.getItem('accessToken');
+      try {
+        const response = await fetch('/api/v1/me/access-status', {
+          headers: { 'Authorization': token }
+        });
+
+        if (response.ok) {
+          const res = await response.json();
+          const data = res.data;
+
+          const subBadge = document.getElementById('sub-plan-badge');
+          const passSection = document.getElementById('creator-pass-section');
+          const noAccessWarn = document.getElementById('no-access-warning');
+          const upgradeBtn = document.getElementById('upgrade-btn');
+
+          if (data.hasActiveSubscription) {
+            subBadge.innerText = "PREMIUM PLAN";
+            subBadge.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+            passSection.style.display = 'none';
+            noAccessWarn.style.display = 'none';
+            upgradeBtn.style.display = 'none';
+          } else {
+            subBadge.innerText = "FREE PLAN";
+            subBadge.style.background = "#374151";
+            upgradeBtn.style.display = 'inline-flex';
+
+            if (data.creatorPassActive) {
+              passSection.style.display = 'block';
+              noAccessWarn.style.display = 'none';
+              
+              const totalScans = data.scansRemaining + data.scansUsed;
+              document.getElementById('scan-count-text').innerText = `${data.scansRemaining} / ${totalScans} Scans`;
+              
+              const pct = (data.scansRemaining / totalScans) * 100;
+              document.getElementById('scan-progress-bar').style.width = `${pct}%`;
+            } else {
+              passSection.style.display = 'block';
+              document.getElementById('scan-count-text').innerText = `0 / 5 Scans`;
+              document.getElementById('scan-progress-bar').style.width = `0%`;
+              noAccessWarn.style.display = 'block';
+              
+              // Redirect to subscribe page if credits exhausted
+              if (data.shouldShowSubscriptionPrompt) {
+                showNotification("Your free scans are completed. Redirecting to paywall...", "warning");
+                setTimeout(() => {
+                  window.location.href = '/subscribe';
+                }, 2000);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error loading access status:", err);
+      }
+    }
+
+    async function fetchScanHistory() {
+      const token = localStorage.getItem('accessToken');
+      try {
+        const response = await fetch('/api/v1/scans/history?limit=5', {
+          headers: { 'Authorization': token }
+        });
+
+        if (response.ok) {
+          const res = await response.json();
+          const logs = res.data;
+          const tbody = document.getElementById('history-tbody');
+
+          if (logs && logs.length > 0) {
+            tbody.innerHTML = '';
+            logs.forEach(log => {
+              const statusClass = log.status === 'SUCCESS' ? 'status-success' : 'status-blocked';
+              const dateStr = new Date(log.createdAt).toLocaleDateString() + ' ' + new Date(log.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+              tbody.innerHTML += `
+                <tr>
+                  <td>${log.scanType || 'default'}</td>
+                  <td><span class="history-status ${statusClass}">${log.status}</span></td>
+                  <td>${dateStr}</td>
+                </tr>
+              `;
+            });
+          } else {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 1.5rem 0;">No scans logged yet.</td>
+              </tr>
+            `;
+          }
+        }
+      } catch (err) {
+        console.error("History error:", err);
+      }
+    }
+
+    async function executeScan(event) {
+      event.preventDefault();
+      
+      const mediaUrl = document.getElementById('media-url').value.trim();
+      const terminal = document.getElementById('terminal-box');
+      
+      terminal.innerHTML = `&gt; Initiating diagnostics request for URL: ${mediaUrl}...\n&gt; Verifying account scan privileges...`;
+      showNotification("<div class='spinner' style='margin: 0 auto;'></div> Executing media scan. Please wait...", "warning");
+
+      const token = localStorage.getItem('accessToken');
+      try {
+        const response = await fetch('/api/v1/scans/use', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+          },
+          body: JSON.stringify({ scanType: 'diagnostics' })
+        });
+
+        const resJson = await response.json();
+
+        if (response.ok && resJson.success) {
+          terminal.innerHTML += `\n&gt; [SUCCESS] Account validated. Scanning media streams...\n&gt; Analyzing audio spectrum and digital footprints...\n&gt; [DONE] Scan used successfully. Remaining pass scans: ${resJson.data.scansRemaining}\n&gt; Result: Safe (100% Quality match)`;
+          showNotification("🎉 Scan executed successfully!", "success");
+          
+          await fetchAccessStatus();
+          await fetchScanHistory();
+        } else {
+          terminal.innerHTML += `\n&gt; [BLOCKED] ${resJson.message || 'Access Denied.'}`;
+          showNotification(`❌ ${resJson.message || 'Scan blocked.'}`, "danger");
+          
+          if (resJson.data && resJson.data.shouldShowSubscriptionPrompt) {
+            setTimeout(() => {
+              window.location.href = '/subscribe';
+            }, 2000);
+          }
+        }
+      } catch (err) {
+        console.error("Scan err:", err);
+        terminal.innerHTML += `\n&gt; [ERROR] Network connection failed. Please retry.`;
+        showNotification("Network error executing scan.", "danger");
+      }
+    }
+
+    function showNotification(message, type) {
+      const box = document.getElementById('notification-box');
+      box.className = `alert alert-${type}`;
+      box.innerHTML = `
+        <span class="alert-icon">${type === 'success' ? '✔' : type === 'danger' ? '✖' : '⚠'}</span>
+        <div>${message}</div>
+      `;
+    }
+  </script>
+</body>
+</html>

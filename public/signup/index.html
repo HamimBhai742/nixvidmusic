@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - NixVidMusic</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .otp-stage {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glass-container">
+    <div class="logo-container">
+      <div class="logo-fallback">NVM</div>
+      <h1 class="app-title">Create Account</h1>
+      <span class="badge-creator-pass">Onboarding</span>
+    </div>
+
+    <div id="notification-box"></div>
+
+    <!-- STAGE 1: SIGNUP FORM -->
+    <div id="signup-stage">
+      <form id="signup-form" onsubmit="handleSignup(event)">
+        <div class="form-group">
+          <label for="reg-name" class="form-label">Full Name</label>
+          <input 
+            type="text" 
+            id="reg-name" 
+            class="form-input" 
+            placeholder="John Doe" 
+            required
+            minlength="3"
+            maxlength="20"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="reg-email" class="form-label">Email Address</label>
+          <input 
+            type="email" 
+            id="reg-email" 
+            class="form-input" 
+            placeholder="john@example.com" 
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="reg-password" class="form-label">Password (min 6 characters)</label>
+          <input 
+            type="password" 
+            id="reg-password" 
+            class="form-input" 
+            placeholder="••••••••" 
+            required
+            minlength="6"
+            maxlength="30"
+          >
+        </div>
+
+        <button type="submit" id="btn-signup" class="btn btn-primary" style="margin-top: 1rem;">
+          Create Account & Send OTP
+        </button>
+      </form>
+
+      <p style="text-align: center; margin-top: 1.5rem; margin-bottom: 0; font-size: 0.9rem;">
+        Already have an account? <a href="/login" id="link-login" style="color: var(--primary); text-decoration: none; font-weight: 600;">Log In</a>
+      </p>
+    </div>
+
+    <!-- STAGE 2: OTP VERIFICATION -->
+    <div id="otp-stage" class="otp-stage">
+      <h3 style="text-align: center; margin-bottom: 0.5rem;">Verify Your Email</h3>
+      <p style="text-align: center; margin-bottom: 1.5rem;" id="otp-instruction">
+        We sent a 6-digit verification code to your email.
+      </p>
+
+      <form id="otp-form" onsubmit="handleVerifyOTP(event)">
+        <div class="form-group">
+          <label for="reg-otp" class="form-label">6-Digit Verification Code</label>
+          <input 
+            type="text" 
+            id="reg-otp" 
+            class="form-input" 
+            placeholder="000000" 
+            required
+            maxlength="6"
+            style="text-align: center; font-size: 1.5rem; letter-spacing: 0.3em; font-family: monospace;"
+          >
+        </div>
+
+        <button type="submit" id="btn-verify" class="btn btn-primary" style="margin-top: 1rem;">
+          Verify & Sign In
+        </button>
+      </form>
+
+      <p style="text-align: center; margin-top: 1.5rem; margin-bottom: 0; font-size: 0.9rem;">
+        Didn't receive a code? <a href="#" onclick="resendOTP(event)" style="color: var(--primary); text-decoration: none; font-weight: 600;">Resend Code</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="app-footer">
+    <p>&copy; 2026 NixVidMusic. <br><a href="/redeem" id="link-back-redeem">Back to Redeem</a></p>
+  </div>
+
+  <script>
+    let signupEmail = '';
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Preserve query params for transitions and back links
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirect = urlParams.get('redirect') || '/redeem';
+      const code = urlParams.get('code');
+      
+      const querySuffix = code ? `?redirect=${encodeURIComponent(redirect)}&code=${encodeURIComponent(code)}` : `?redirect=${encodeURIComponent(redirect)}`;
+      
+      document.getElementById('link-login').href = `/login${querySuffix}`;
+      document.getElementById('link-back-redeem').href = `/redeem${code ? `?code=${encodeURIComponent(code)}` : ''}`;
+    });
+
+    async function handleSignup(event) {
+      event.preventDefault();
+      
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      
+      showNotification("<div class='spinner' style='margin: 0 auto;'></div> Creating your account...", "warning");
+
+      try {
+        const response = await fetch('/api/v1/user/sign-up', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name, email, password })
+        });
+
+        const resJson = await response.json();
+
+        if (response.ok && resJson.success) {
+          signupEmail = email;
+          showNotification("📧 OTP sent! Check your email inbox.", "success");
+          
+          // Switch to OTP stage
+          document.getElementById('signup-stage').style.display = 'none';
+          document.getElementById('otp-stage').style.display = 'block';
+          document.getElementById('otp-instruction').innerText = `We sent a 6-digit verification code to ${email}.`;
+        } else {
+          showNotification(`❌ ${resJson.message || 'Failed to sign up.'}`, "danger");
+        }
+      } catch (err) {
+        console.error("Sign up error:", err);
+        showNotification("Network error. Please try again.", "danger");
+      }
+    }
+
+    async function handleVerifyOTP(event) {
+      event.preventDefault();
+      
+      const otp = document.getElementById('reg-otp').value.trim();
+      
+      showNotification("<div class='spinner' style='margin: 0 auto;'></div> Verifying code...", "warning");
+
+      try {
+        const response = await fetch('/api/v1/user/verify-register-otp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: signupEmail, otp })
+        });
+
+        const resJson = await response.json();
+
+        if (response.ok && resJson.success) {
+          showNotification("🎉 Account verified successfully!", "success");
+          
+          // Save access token to local storage
+          const token = resJson.data.token;
+          localStorage.setItem('accessToken', token);
+
+          // Get redirect destination and code
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirect = urlParams.get('redirect') || '/redeem';
+          const code = urlParams.get('code');
+          
+          // Redirect user
+          setTimeout(() => {
+            const dest = code ? `${redirect}?code=${encodeURIComponent(code)}` : redirect;
+            window.location.href = dest;
+          }, 1000);
+        } else {
+          showNotification(`❌ ${resJson.message || 'Invalid OTP code.'}`, "danger");
+        }
+      } catch (err) {
+        console.error("Verify OTP error:", err);
+        showNotification("Network error. Please try again.", "danger");
+      }
+    }
+
+    async function resendOTP(event) {
+      event.preventDefault();
+      
+      showNotification("<div class='spinner' style='margin: 0 auto;'></div> Resending verification code...", "warning");
+
+      try {
+        const response = await fetch('/api/v1/user/resend-register-otp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: signupEmail })
+        });
+
+        const resJson = await response.json();
+
+        if (response.ok && resJson.success) {
+          showNotification("📧 A new 6-digit code has been sent to your email.", "success");
+        } else {
+          showNotification(`❌ ${resJson.message || 'Failed to resend code.'}`, "danger");
+        }
+      } catch (err) {
+        console.error("Resend OTP error:", err);
+        showNotification("Network error. Please try again.", "danger");
+      }
+    }
+
+    function showNotification(message, type) {
+      const box = document.getElementById('notification-box');
+      box.className = `alert alert-${type}`;
+      box.innerHTML = `
+        <span class="alert-icon">${type === 'success' ? '✔' : type === 'danger' ? '✖' : '⚠'}</span>
+        <div>${message}</div>
+      `;
+    }
+  </script>
+</body>
+</html>

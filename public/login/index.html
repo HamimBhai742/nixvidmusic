@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In - NixVidMusic</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .otp-stage {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glass-container">
+    <div class="logo-container">
+      <div class="logo-fallback">NVM</div>
+      <h1 class="app-title">Welcome Back</h1>
+      <span class="badge-creator-pass">Log In</span>
+    </div>
+
+    <div id="notification-box"></div>
+
+    <!-- STAGE 1: LOGIN FORM -->
+    <div id="login-stage">
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="login-email" class="form-label">Email Address</label>
+          <input 
+            type="email" 
+            id="login-email" 
+            class="form-input" 
+            placeholder="john@example.com" 
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="login-password" class="form-label">Password</label>
+          <input 
+            type="password" 
+            id="login-password" 
+            class="form-input" 
+            placeholder="••••••••" 
+            required
+          >
+        </div>
+
+        <button type="submit" id="btn-login" class="btn btn-primary" style="margin-top: 1rem;">
+          Log In
+        </button>
+      </form>
+
+      <p style="text-align: center; margin-top: 1.5rem; margin-bottom: 0; font-size: 0.9rem;">
+        Don't have an account? <a href="/signup" id="link-signup" style="color: var(--primary); text-decoration: none; font-weight: 600;">Sign Up</a>
+      </p>
+    </div>
+
+    <!-- STAGE 2: OTP VERIFICATION -->
+    <div id="otp-stage" class="otp-stage">
+      <h3 style="text-align: center; margin-bottom: 0.5rem;">Enter Verification Code</h3>
+      <p style="text-align: center; margin-bottom: 1.5rem;" id="otp-instruction">
+        Please enter the 6-digit OTP code sent to your email to verify.
+      </p>
+
+      <form id="otp-form" onsubmit="handleVerifyOTP(event)">
+        <div class="form-group">
+          <label for="login-otp" class="form-label">6-Digit Verification Code</label>
+          <input 
+            type="text" 
+            id="login-otp" 
+            class="form-input" 
+            placeholder="000000" 
+            required
+            maxlength="6"
+            style="text-align: center; font-size: 1.5rem; letter-spacing: 0.3em; font-family: monospace;"
+          >
+        </div>
+
+        <button type="submit" id="btn-verify" class="btn btn-primary" style="margin-top: 1rem;">
+          Verify & Sign In
+        </button>
+      </form>
+
+      <p style="text-align: center; margin-top: 1.5rem; margin-bottom: 0; font-size: 0.9rem;">
+        Didn't receive a code? <a href="#" onclick="resendOTP(event)" style="color: var(--primary); text-decoration: none; font-weight: 600;">Resend OTP</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="app-footer">
+    <p>&copy; 2026 NixVidMusic. <br><a href="/redeem" id="link-back-redeem">Back to Redeem</a></p>
+  </div>
+
+  <script>
+    let loginEmail = '';
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Preserve query params for transitions and back links
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirect = urlParams.get('redirect') || '/redeem';
+      const code = urlParams.get('code');
+      
+      const querySuffix = code ? `?redirect=${encodeURIComponent(redirect)}&code=${encodeURIComponent(code)}` : `?redirect=${encodeURIComponent(redirect)}`;
+      
+      document.getElementById('link-signup').href = `/signup${querySuffix}`;
+      document.getElementById('link-back-redeem').href = `/redeem${code ? `?code=${encodeURIComponent(code)}` : ''}`;
+    });
+
+    async function handleLogin(event) {
+      event.preventDefault();
+      
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      
+      showNotification("<div class='spinner' style='margin: 0 auto;'></div> Logging in...", "warning");
+
+      try {
+        const response = await fetch('/api/v1/auth/sign-in', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const resJson = await response.json();
+
+        if (response.ok && resJson.success) {
+          loginEmail = email;
+
+          // Check if we received the access token directly (means Admin/Superadmin bypass OTP)
+          if (resJson.data && resJson.data.accessToken) {
+            showNotification("🎉 Login successful! Welcome back admin.", "success");
+            localStorage.setItem('accessToken', resJson.data.accessToken);
+            proceedRedirect();
+          } else {
+            // Standard User needs OTP verification
+            showNotification("📧 OTP sent! Please verify to sign in.", "success");
+            
+            // Switch to OTP stage
+            document.getElementById('login-stage').style.display = 'none';
+            document.getElementById('otp-stage').style.display = 'block';
+            document.getElementById('otp-instruction').innerText = `We sent a 6-digit verification code to ${email}.`;
+          }
+        } else {
+          showNotification(`❌ ${resJson.message || 'Incorrect email or password.'}`, "danger");
+        }
+      } catch (err) {
+        console.error("Login error:", err);
+        showNotification("Network error. Please try again.", "danger");
+      }
+    }
+
+    async function handleVerifyOTP(event) {
+      event.preventDefault();
+      
+      const otp = document.getElementById('login-otp').value.trim();
+      
+      showNotification("<div class='spinner' style='margin: 0 auto;'></div> Verifying code...", "warning");
+
+      try {
+        const response = await fetch('/api/v1/auth/verify-otp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: loginEmail, otp })
+        });
+
+        const resJson = await response.json();
+
+        if (response.ok && resJson.success) {
+          showNotification("🎉 Verification successful!", "success");
+          
+          // Save access token to local storage
+          const token = resJson.data.token;
+          localStorage.setItem('accessToken', token);
+
+          proceedRedirect();
+        } else {
+          showNotification(`❌ ${resJson.message || 'Invalid OTP code.'}`, "danger");
+        }
+      } catch (err) {
+        console.error("Verify OTP error:", err);
+        showNotification("Network error. Please try again.", "danger");
+      }
+    }
+
+    async function resendOTP(event) {
+      event.preventDefault();
+      
+      showNotification("<div class='spinner' style='margin: 0 auto;'></div> Resending OTP...", "warning");
+
+      try {
+        const response = await fetch('/api/v1/auth/resend-login-otp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: loginEmail })
+        });
+
+        const resJson = await response.json();
+
+        if (response.ok && resJson.success) {
+          showNotification("📧 A new 6-digit OTP code has been sent to your email.", "success");
+        } else {
+          showNotification(`❌ ${resJson.message || 'Failed to resend OTP.'}`, "danger");
+        }
+      } catch (err) {
+        console.error("Resend OTP error:", err);
+        showNotification("Network error. Please try again.", "danger");
+      }
+    }
+
+    function proceedRedirect() {
+      // Get redirect destination and code
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirect = urlParams.get('redirect') || '/redeem';
+      const code = urlParams.get('code');
+      
+      // Redirect user
+      setTimeout(() => {
+        const dest = code ? `${redirect}?code=${encodeURIComponent(code)}` : redirect;
+        window.location.href = dest;
+      }, 1000);
+    }
+
+    function showNotification(message, type) {
+      const box = document.getElementById('notification-box');
+      box.className = `alert alert-${type}`;
+      box.innerHTML = `
+        <span class="alert-icon">${type === 'success' ? '✔' : type === 'danger' ? '✖' : '⚠'}</span>
+        <div>${message}</div>
+      `;
+    }
+  </script>
+</body>
+</html>

@@ -177,6 +177,21 @@ const lowRiskContracts = async (userId: string) => {
   };
 };
 
+const getMyContract = async (id: string, userId: string) => {
+  const contract = await prisma.contract.findFirst({
+    where: {
+      id,
+      userId,
+    },
+  });
+
+  if (!contract) {
+    throw new AppError(httpStatus.NOT_FOUND, "Contract not found or you do not have permission to view it");
+  }
+
+  return contract;
+};
+
 export const contractServices = {
   contractAnalysis,
   getRecentContracts,
@@ -185,4 +200,5 @@ export const contractServices = {
   highRiskContracts,
   mediumRiskContracts,
   lowRiskContracts,
+  getMyContract,
 };

@@ -103,6 +103,24 @@ const lowRiskContracts = catchAsyncFn(
   },
 );
 
+const getMyContract = catchAsyncFn(
+  async (req: Request & { user?: IJwtPayload }, res: Response) => {
+    const userId = req.user?.userId;
+    const contractId = req.params.id as string;
+    const result = await contractServices.getMyContract(
+      contractId,
+      userId as string,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Contract retrieved successfully",
+      data: result,
+    });
+  },
+);
+
 export const contractController = {
   contractAnalysis,
   getRecentContracts,
@@ -111,4 +129,5 @@ export const contractController = {
   highRiskContracts,
   mediumRiskContracts,
   lowRiskContracts,
+  getMyContract,
 };

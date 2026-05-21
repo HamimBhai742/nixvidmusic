@@ -49,4 +49,10 @@ router.get(
   contractController.lowRiskContracts,
 );
 
+router.get(
+  "/:id",
+  checkAuth(Role.USER),
+  contractController.getMyContract,
+);
+
 export const contractRoutes = router;

@@ -42,6 +42,9 @@ model User {
   contracts     Contract[]
   chats         Chat[]
   chatMessages  ChatMessage[]
+  redeemCodes   RedeemCode[]
+  userAccesses  UserAccess[]
+  scanUsageLogs ScanUsageLog[]
 
   @@map("users")
 }
@@ -199,4 +202,109 @@ enum UserStatus {
   INACTIVE
   BLOCKED
   PENDING
+}
+
+model RedeemCode {
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  code           String           @unique
+  type           RedeemCodeType   @default(CREATOR_PASS)
+  status         RedeemCodeStatus @default(ACTIVE)
+  maxUses        Int              @default(1)
+  usedCount      Int              @default(0)
+  scansAllowed   Int              @default(5)
+  batchId        String?          @db.ObjectId
+  assignedUserId String?          @db.ObjectId
+  redeemedAt     DateTime?
+  expiresAt      DateTime?
+  note           String?
+  source         String?          @default("TikTok Shop")
+  createdBy      String?          @db.ObjectId
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  batch        RedeemCodeBatch? @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  assignedUser User?            @relation(fields: [assignedUserId], references: [id], onDelete: SetNull)
+  userAccesses UserAccess[]
+
+  @@map("redeem_codes")
+}
+
+enum RedeemCodeType {
+  CREATOR_PASS
+  AFFILIATE
+}
+
+enum RedeemCodeStatus {
+  ACTIVE
+  USED
+  EXPIRED
+  DISABLED
+}
+
+model RedeemCodeBatch {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  type         RedeemCodeType @default(CREATOR_PASS)
+  quantity     Int
+  scansAllowed Int            @default(5)
+  source       String?        @default("TikTok Shop")
+  createdBy    String?        @db.ObjectId
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  codes RedeemCode[]
+
+  @@map("redeem_code_batches")
+}
+
+model UserAccess {
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String           @db.ObjectId
+  sourceCodeId   String?          @db.ObjectId
+  accessType     AccessType       @default(CREATOR_PASS)
+  scansRemaining Int              @default(5)
+  scansUsed      Int              @default(0)
+  status         UserAccessStatus @default(ACTIVE)
+  activatedAt    DateTime         @default(now())
+  expiredAt      DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  user       User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceCode RedeemCode?   @relation(fields: [sourceCodeId], references: [id], onDelete: SetNull)
+  usages     ScanUsageLog[]
+
+  @@map("user_accesses")
+}
+
+enum AccessType {
+  CREATOR_PASS
+  SUBSCRIPTION
+}
+
+enum UserAccessStatus {
+  ACTIVE
+  EXHAUSTED
+  EXPIRED
+}
+
+model ScanUsageLog {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String     @db.ObjectId
+  accessId  String?    @db.ObjectId
+  scanType  String?    @default("default")
+  status    ScanStatus @default(SUCCESS)
+  reason    String?
+  createdAt DateTime   @default(now())
+
+  user   User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  access UserAccess? @relation(fields: [accessId], references: [id], onDelete: SetNull)
+
+  @@map("scan_usage_logs")
+}
+
+enum ScanStatus {
+  SUCCESS
+  FAILED
+  BLOCKED
 }

@@ -13,6 +13,12 @@ router.get("/get-subscription",
   //  auth(),
     subscriptionController.getAllPlansController);
 
+// Pricing config for frontend UI (plans + creator pass)
+router.get(
+  "/pricing",
+  subscriptionController.getPricingController,
+);
+
 router.post("/purchase-subscription",
    checkAuth(Role.USER),
     subscriptionController.purchaseSubscriptionController);

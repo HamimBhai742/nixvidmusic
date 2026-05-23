@@ -3,6 +3,7 @@ import httpStatus from "http-status";
 import {
   createSubscriptionIntoDb,
   getAllSubscriptionPlans,
+  getPricingForFrontend,
   purchaseSubscription,
   unsubscribeSubscription,
 } from "./stripe.service";
@@ -36,15 +37,26 @@ const getAllPlansController = catchAsyncFn(async (_req, res) => {
   });
 });
 
+const getPricingController = catchAsyncFn(async (_req, res) => {
+  const pricing = await getPricingForFrontend();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Pricing retrieved successfully",
+    data: pricing,
+  });
+});
+
 const purchaseSubscriptionController = catchAsyncFn(async (req:Request & { user?: IJwtPayload }, res:Response) => {
   const userId = req.user?.userId; // normally from auth middleware
-  const sub = await purchaseSubscription(req.body, userId as string);
+  const result = await purchaseSubscription(req.body, userId as string);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Subscription purchased successfully",
-    data: sub,
+    data: result,
   });
 });
 
@@ -64,6 +76,7 @@ const unsubscribeSubscriptionController = catchAsyncFn(async (req:Request & { us
 export const subscriptionController = {
   createPlanController,
   getAllPlansController,
+  getPricingController,
   purchaseSubscriptionController,
   unsubscribeSubscriptionController,
 };

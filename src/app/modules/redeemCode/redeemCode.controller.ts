@@ -222,6 +222,28 @@ const getScanUsageHistory = catchAsyncFn(async (req: Request & { user?: IJwtPayl
   });
 });
 
+const getAdminDashboardOverview = catchAsyncFn(async (req: Request, res: Response) => {
+  const result = await redeemCodeService.getAdminDashboardOverview(req.query);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Admin dashboard overview fetched successfully.",
+    data: result,
+  });
+});
+
+const getAdminRedeemCodesOverview = catchAsyncFn(async (_req: Request, res: Response) => {
+  const result = await redeemCodeService.getAdminRedeemCodesOverview();
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Redeem codes overview fetched successfully.",
+    data: result,
+  });
+});
+
 export const redeemCodeController = {
   generateRedeemCodes,
   getAllRedeemCodes,
@@ -237,4 +259,6 @@ export const redeemCodeController = {
   getUserAccessStatus,
   useScan,
   getScanUsageHistory,
+  getAdminDashboardOverview,
+  getAdminRedeemCodesOverview,
 };

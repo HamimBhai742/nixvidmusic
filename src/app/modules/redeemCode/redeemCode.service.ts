@@ -141,9 +141,32 @@ const getAllRedeemCodes = async (query: {
             name: true,
           },
         },
+        userAccesses: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+        },
       },
     }),
   ]);
+
+  const enrichedCodes = codes.map((code: any) => {
+    const latestAccess = Array.isArray(code.userAccesses) ? code.userAccesses[0] : null;
+    const remaining =
+      latestAccess && typeof latestAccess.scansRemaining === "number"
+        ? latestAccess.scansRemaining
+        : code.scansAllowed;
+    const totalScans = code.scansAllowed ?? 0;
+
+    return {
+      ...code,
+      remainingScans: {
+        remaining,
+        total: totalScans,
+        display: `${remaining}/${totalScans}`,
+      },
+      latestAccess,
+    };
+  });
 
   const totalPages = Math.ceil(total / limit);
 
@@ -154,7 +177,43 @@ const getAllRedeemCodes = async (query: {
       limit,
       totalPages,
     },
-    data: codes,
+    data: enrichedCodes,
+  };
+};
+
+const getAdminRedeemCodesOverview = async () => {
+  const [activeCodes, redemptions, expiredCodes] = await Promise.all([
+    prisma.redeemCode.count({ where: { status: RedeemCodeStatus.ACTIVE } }),
+    prisma.redeemCode.count({ where: { status: RedeemCodeStatus.USED } }),
+    prisma.redeemCode.count({ where: { status: RedeemCodeStatus.EXPIRED } }),
+  ]);
+
+  // Avg lifespan = average days from createdAt -> redeemedAt (USED codes only).
+  // Use a capped sample to avoid pulling huge datasets.
+  const usedSample = await prisma.redeemCode.findMany({
+    where: { status: RedeemCodeStatus.USED, redeemedAt: { not: null } },
+    select: { createdAt: true, redeemedAt: true },
+    orderBy: { redeemedAt: "desc" },
+    take: 5000,
+  });
+
+  const lifespans = usedSample
+    .map((c) => (c.redeemedAt ? c.redeemedAt.getTime() - c.createdAt.getTime() : null))
+    .filter((ms): ms is number => typeof ms === "number" && ms >= 0);
+
+  const avgMs = lifespans.length
+    ? lifespans.reduce((sum, ms) => sum + ms, 0) / lifespans.length
+    : null;
+  const avgLifespanDays = avgMs === null ? null : Math.round(avgMs / (1000 * 60 * 60 * 24));
+
+  return {
+    cards: {
+      activeCodes,
+      redemptions,
+      expiredCodes,
+      avgLifespanDays,
+      avgLifespanSampleSize: usedSample.length,
+    },
   };
 };
 
@@ -580,6 +639,87 @@ const getScanUsageHistory = async (
   };
 };
 
+const getAdminDashboardOverview = async (query: { limit?: string }) => {
+  const limit = Math.min(Math.max(parseInt(query.limit || "10", 10) || 10, 1), 50);
+
+  const [totalCodesGenerated, activeCodes, redeemedCodes] = await Promise.all([
+    prisma.redeemCode.count(),
+    prisma.redeemCode.count({ where: { status: RedeemCodeStatus.ACTIVE } }),
+    prisma.redeemCode.count({ where: { status: RedeemCodeStatus.USED } }),
+  ]);
+
+  const creatorPassUsers = await prisma.userAccess.findMany({
+    where: {
+      accessType: AccessType.CREATOR_PASS,
+      status: UserAccessStatus.ACTIVE,
+    },
+    distinct: ["userId"],
+    select: { userId: true },
+  });
+
+  const recent = await prisma.userAccess.findMany({
+    where: { accessType: AccessType.CREATOR_PASS },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      user: { select: { id: true, name: true, email: true } },
+      sourceCode: {
+        select: {
+          id: true,
+          code: true,
+          type: true,
+          status: true,
+          source: true,
+          note: true,
+        },
+      },
+    },
+  });
+
+  const recentRedeemActivity = recent.map((item) => {
+    const code = item.sourceCode?.code ?? null;
+    const userName = item.user?.name ?? null;
+    const userEmail = item.user?.email ?? null;
+
+    const action =
+      item.sourceCode?.note ||
+      (item.sourceCode?.type === RedeemCodeType.CREATOR_PASS
+        ? "Creator Pass Activation"
+        : "Redeem Code Applied");
+
+    const status =
+      item.status === UserAccessStatus.ACTIVE ? "SUCCESS" : item.status;
+
+    return {
+      id: item.id,
+      user: {
+        id: item.user?.id ?? null,
+        name: userName,
+        email: userEmail,
+      },
+      code,
+      action,
+      time: item.createdAt,
+      status,
+      meta: {
+        scansRemaining: item.scansRemaining,
+        scansUsed: item.scansUsed,
+        source: item.sourceCode?.source ?? null,
+      },
+    };
+  });
+
+  return {
+    cards: {
+      totalCodesGenerated,
+      activeCodes,
+      redeemedCodes,
+      totalCreatorPassUsers: creatorPassUsers.length,
+    },
+    recentRedeemActivity,
+  };
+};
+
 export const redeemCodeService = {
   generateRedeemCodes,
   getAllRedeemCodes,
@@ -594,4 +734,6 @@ export const redeemCodeService = {
   getUserAccessStatus,
   useScan,
   getScanUsageHistory,
+  getAdminDashboardOverview,
+  getAdminRedeemCodesOverview,
 };

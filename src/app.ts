@@ -14,7 +14,15 @@ app.use(
   }),
 );
 
-//parser
+// Stripe webhook MUST receive the raw request body for signature verification.
+// Keep this before the JSON body parser.
+app.use(
+  "/api/v1/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebhook,
+);
+
+// parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(process.cwd(), "public")));
@@ -24,11 +32,6 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/v1", router);
-app.use(
-  "/api/v1/webhook",
-  express.raw({ type: "application/json" }),
-  stripeWebhook,
-);
 app.use(globalErrorHandler);
 
 app.use((req: Request, res: Response, next: NextFunction) => {

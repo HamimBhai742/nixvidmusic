@@ -9,6 +9,7 @@ import { CloudinaryUploadResponse } from "../interface/Cloudinary.interface";
 import { contractRoutes } from "../modules/contract/contract.routes";
 import { chatRoutes } from "../modules/chat/chat.routes";
 import { redeemCodeRoutes } from "../modules/redeemCode/redeemCode.routes";
+import { adminRoutes } from "../modules/admin/admin.routes";
 
 const router = Router();
 
@@ -36,6 +37,10 @@ const routes = [
   {
     path: "/support",
     route: supportRoutes,
+  },
+  {
+    path: "/",
+    route: adminRoutes,
   },
   {
     path: "/",

@@ -56,6 +56,20 @@ router.get(
 // ADMIN ROUTES (Protected with ADMIN/SUPERADMIN roles)
 // ==========================================
 
+// Dashboard overview cards + recent redeem activity
+router.get(
+  "/admin/dashboard-overview",
+  checkAuth("ADMIN", "SUPERADMIN"),
+  redeemCodeController.getAdminDashboardOverview
+);
+
+// Redeem codes page cards (active/redemptions/avg lifespan/expired)
+router.get(
+  "/admin/redeem-codes/overview",
+  checkAuth("ADMIN", "SUPERADMIN"),
+  redeemCodeController.getAdminRedeemCodesOverview
+);
+
 // List batches
 router.get(
   "/admin/redeem-code-batches",

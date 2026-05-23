@@ -4,6 +4,8 @@ import { stripe } from "../../lib/stripe";
 import { prisma } from "../../utils/prisma";
 import { AppError } from "../../error/AppError";
 import { SubscriptionStatus } from "../../interface/Stripe.interface";
+import { DEFAULT_PRICING_CONFIG, PricingFeature } from "./pricing.config";
+import { BillingPeriod, Prisma } from "@prisma/client";
 
 // ===== Interfaces =====
 interface CreatePlanPayload {
@@ -12,6 +14,8 @@ interface CreatePlanPayload {
   currency: string;
   billingPeriod: "month" | "year";
   features: any; // features object array
+  isPopular?: boolean;
+  benefits?: string[];
 }
 
 interface PurchaseSubscriptionPayload {
@@ -22,7 +26,8 @@ interface PurchaseSubscriptionPayload {
 // ===== Create Plan =====
 export const createSubscriptionIntoDb = async (payload: CreatePlanPayload) => {
   const currency = payload.currency || "usd";
-  const interval = payload.billingPeriod === "month" ? "month" : "lifetime";
+  const interval: Stripe.PriceCreateParams.Recurring.Interval =
+    payload.billingPeriod === "month" ? "month" : "year";
 
   let productId: string | null = null;
   let pricingId: string | null = null;
@@ -38,9 +43,7 @@ export const createSubscriptionIntoDb = async (payload: CreatePlanPayload) => {
       product: product.id,
     };
 
-    if (interval !== "lifetime") {
-      priceData.recurring = { interval };
-    }
+    priceData.recurring = { interval };
 
     const price = await stripe.prices.create(priceData);
     pricingId = price.id;
@@ -64,7 +67,15 @@ export const createSubscriptionIntoDb = async (payload: CreatePlanPayload) => {
       price: payload.price,
       currency,
       billingPeriod: interval === "month" ? "MONTHLY" : "YEARLY",
+      isPopular: payload.isPopular ?? false,
       features: payload.features,
+      benefits:
+        payload.benefits ??
+        (Array.isArray(payload.features)
+          ? payload.features
+              .filter((f: any) => f && typeof f === "object" && f.included)
+              .map((f: any) => String(f.label))
+          : []),
       productId,
       pricingId,
     },
@@ -78,6 +89,175 @@ export const getAllSubscriptionPlans = async () => {
   return prisma.subscriptionPlan.findMany({
     orderBy: { createdAt: "asc" },
   });
+};
+
+const formatMoney = (amount: number, currency: string) => {
+  const upper = currency.toUpperCase();
+  const symbol = upper === "GBP" ? "£" : upper === "USD" ? "$" : "";
+  const formatted = Number.isFinite(amount) ? amount.toFixed(2).replace(/\.00$/, "") : String(amount);
+  return `${symbol}${formatted}`;
+};
+
+const normalizeFeatureList = (value: unknown): PricingFeature[] | null => {
+  if (!Array.isArray(value)) return null;
+  const mapped: PricingFeature[] = [];
+  for (const item of value) {
+    if (!item || typeof item !== "object") return null;
+    const label = (item as any).label;
+    const included = (item as any).included;
+    if (typeof label !== "string" || typeof included !== "boolean") return null;
+    mapped.push({ label, included });
+  }
+  return mapped;
+};
+
+export const getPricingForFrontend = async () => {
+  const config = DEFAULT_PRICING_CONFIG;
+
+  try {
+    // Ensure default plans exist in DB (idempotent)
+    for (const plan of config.plans) {
+      const benefits = plan.features
+        .filter((f) => f.included)
+        .map((f) => f.label);
+
+      const record = await prisma.subscriptionPlan.upsert({
+        where: { name: plan.name },
+        update: {
+          price: plan.amount,
+          currency: plan.currency,
+          billingPeriod: plan.billingPeriod,
+          isPopular: plan.isPopular,
+          features: plan.features as unknown as Prisma.InputJsonValue,
+          benefits,
+        },
+        create: {
+          name: plan.name,
+          price: plan.amount,
+          currency: plan.currency,
+          billingPeriod: plan.billingPeriod,
+          isPopular: plan.isPopular,
+          features: plan.features as unknown as Prisma.InputJsonValue,
+          benefits,
+        },
+      });
+
+      // Backfill Stripe product/price for paid plans (one-time) if missing
+      if (record.price > 0 && !record.pricingId) {
+        const product = record.productId
+          ? await stripe.products.retrieve(record.productId).catch(() => null)
+          : null;
+
+        const ensuredProduct =
+          product && !("deleted" in product && product.deleted)
+            ? product
+            : await stripe.products.create({ name: record.name });
+
+        const price = await stripe.prices.create({
+          unit_amount: Math.round((record.price ?? 0) * 100),
+          currency: record.currency ?? "usd",
+          product: ensuredProduct.id,
+          recurring: {
+            interval: record.billingPeriod === BillingPeriod.YEARLY ? "year" : "month",
+          },
+        });
+
+        await prisma.subscriptionPlan.update({
+          where: { id: record.id },
+          data: { productId: ensuredProduct.id, pricingId: price.id },
+        });
+      }
+    }
+
+    const dbPlans = await prisma.subscriptionPlan.findMany({
+      where: { name: { in: config.plans.map((p) => p.name) } },
+      orderBy: { createdAt: "asc" },
+    });
+
+    const byName = new Map(dbPlans.map((p) => [p.name, p]));
+
+    const plans = config.plans.map((p) => {
+      const db = byName.get(p.name) || null;
+      const dbFeatures = db ? normalizeFeatureList((db as any).features) : null;
+      const currency = db?.currency ?? p.currency;
+      const amount = typeof db?.price === "number" ? db.price : p.amount;
+      const billingPeriod = (db?.billingPeriod ?? p.billingPeriod) as BillingPeriod;
+
+      return {
+        id: db?.id ?? null,
+        key: p.key,
+        name: p.name,
+        description: p.description,
+        isPopular: db?.isPopular ?? p.isPopular,
+        trialDays: p.trialDays ?? null,
+        ctaLabel: p.ctaLabel,
+        limits: p.limits ?? null,
+        billingPeriod,
+        price: {
+          amount,
+          currency,
+          interval: billingPeriod === BillingPeriod.YEARLY ? "year" : "month",
+          display: amount === 0 ? `${formatMoney(0, currency)}` : `${formatMoney(amount, currency)}`,
+        },
+        stripe: {
+          productId: db?.productId ?? null,
+          priceId: db?.pricingId ?? null,
+        },
+        features: dbFeatures ?? p.features,
+        benefits:
+          (Array.isArray((db as any)?.benefits) && (db as any).benefits.length
+            ? (db as any).benefits
+            : p.features.filter((f) => f.included).map((f) => f.label)) ?? [],
+      };
+    });
+
+    return {
+      plans,
+      creatorPass: {
+        ...config.creatorPass,
+        price: {
+          amount: config.creatorPass.amount,
+          currency: config.creatorPass.currency,
+          interval: "one_time",
+          display: formatMoney(config.creatorPass.amount, config.creatorPass.currency),
+        },
+      },
+    };
+  } catch (err) {
+    console.error("Failed to build pricing response:", err);
+    // Fallback to static config so pricing UI can still render
+    return {
+      plans: config.plans.map((p) => ({
+        id: null,
+        key: p.key,
+        name: p.name,
+        description: p.description,
+        isPopular: p.isPopular,
+        trialDays: p.trialDays ?? null,
+        ctaLabel: p.ctaLabel,
+        limits: p.limits ?? null,
+        billingPeriod: p.billingPeriod,
+        price: {
+          amount: p.amount,
+          currency: p.currency,
+          interval: p.billingPeriod === BillingPeriod.YEARLY ? "year" : "month",
+          display: p.amount === 0 ? `${formatMoney(0, p.currency)}` : `${formatMoney(p.amount, p.currency)}`,
+        },
+        stripe: { productId: null, priceId: null },
+        features: p.features,
+        benefits: p.features.filter((f) => f.included).map((f) => f.label),
+      })),
+      creatorPass: {
+        ...config.creatorPass,
+        price: {
+          amount: config.creatorPass.amount,
+          currency: config.creatorPass.currency,
+          interval: "one_time",
+          display: formatMoney(config.creatorPass.amount, config.creatorPass.currency),
+        },
+      },
+    };
+  }
 };
 
 // ===== Purchase Subscription =====
@@ -105,7 +285,7 @@ export const purchaseSubscription = async (
 
   // Free plan
   if ((plan.price ?? 0) === 0) {
-    return prisma.userSubscription.upsert({
+    const userSubscription = await prisma.userSubscription.upsert({
       where: { userId_planId_unique: { userId, planId: plan.id } },
       update: {
         status: SubscriptionStatus.ACTIVE,
@@ -119,6 +299,10 @@ export const purchaseSubscription = async (
         startDate: new Date(),
       },
     });
+    return {
+      subscription: userSubscription,
+      stripe: null,
+    };
   }
 
   if (!plan.pricingId)
@@ -151,13 +335,13 @@ export const purchaseSubscription = async (
     customer: stripeCustomerId,
     items: [{ price: plan.pricingId }],
     payment_behavior:"default_incomplete",
-    expand: ["latest_invoice.payment_intent"],
+    expand: ["latest_invoice"],
     metadata: { userId, subscriptionId: plan.id },
     payment_settings: { payment_method_types: ["card"] },
     trial_period_days: 7
   });
 console.log(stripeSub)
-  return prisma.userSubscription.create({
+  const userSubscription = await prisma.userSubscription.create({
     data: {
       userId,
       planId: plan.id,
@@ -167,6 +351,20 @@ console.log(stripeSub)
       paymentMethod: "stripe",
     },
   });
+
+  const latestInvoice = stripeSub.latest_invoice as Stripe.Invoice | null;
+  const clientSecret =
+    (latestInvoice as any)?.confirmation_secret?.client_secret ?? null;
+
+  return {
+    subscription: userSubscription,
+    stripe: {
+      customerId: stripeCustomerId,
+      subscriptionId: stripeSub.id,
+      status: stripeSub.status,
+      clientSecret,
+    },
+  };
 };
 
 // ===== Unsubscribe =====
@@ -215,6 +413,19 @@ export const handleStripeSubscriptionCreated = async (
 
   if (!userId || !subscriptionId) return;
 
+  const mappedStatus =
+    stripeSub.status === "active" || stripeSub.status === "trialing"
+      ? SubscriptionStatus.ACTIVE
+      : stripeSub.status === "canceled"
+        ? SubscriptionStatus.CANCELLED
+        : SubscriptionStatus.PENDING;
+
+  const currentPeriodEndSeconds = (stripeSub as any)?.current_period_end;
+  const currentPeriodEnd =
+    typeof currentPeriodEndSeconds === "number"
+      ? new Date(currentPeriodEndSeconds * 1000)
+      : null;
+
   const existing = await prisma.userSubscription.findFirst({
     where: { transactionId: stripeSub.id },
   });
@@ -223,8 +434,13 @@ export const handleStripeSubscriptionCreated = async (
     await prisma.userSubscription.update({
       where: { id: existing.id },
       data: {
-        status: SubscriptionStatus.ACTIVE,
+        status: mappedStatus,
         transactionId: stripeSub.id,
+        endDate: currentPeriodEnd,
+        cancelAt:
+          stripeSub.cancel_at && typeof stripeSub.cancel_at === "number"
+            ? new Date(stripeSub.cancel_at * 1000)
+            : null,
         updatedAt: new Date(),
       },
     });
@@ -233,8 +449,13 @@ export const handleStripeSubscriptionCreated = async (
       data: {
         userId,
         planId: subscriptionId,
-        status: SubscriptionStatus.ACTIVE,
+        status: mappedStatus,
         startDate: new Date(),
+        endDate: currentPeriodEnd,
+        cancelAt:
+          stripeSub.cancel_at && typeof stripeSub.cancel_at === "number"
+            ? new Date(stripeSub.cancel_at * 1000)
+            : null,
         transactionId: stripeSub.id,
       },
     });

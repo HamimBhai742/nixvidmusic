@@ -264,6 +264,7 @@ const getMe = async (email: string) => {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
   return {
+    id: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
@@ -271,6 +272,7 @@ const getMe = async (email: string) => {
     status: user.status,
     isEmailVerified: user.isEmailVerified,
     plan: user.plan,
+
   };
 };
 
